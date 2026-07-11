@@ -23,3 +23,16 @@
 
 - [Cursor](https://cursor.com) с поддержкой Canvas
 - Файл `.canvas.tsx` компилируется IDE автоматически при открытии
+
+## Публикация на GitHub
+
+Локальный git-репозиторий уже инициализирован. Для создания удалённого репозитория и push:
+
+```bash
+chmod +x scripts/publish-github.sh
+./scripts/publish-github.sh
+```
+
+Скрипт создаст публичный репозиторий `bbenicore-web/megafon-cpo-architecture-canvas` и отправит туда `main`.
+
+Если `gh` ещё не авторизован, скрипт попросит выполнить `gh auth login`.
