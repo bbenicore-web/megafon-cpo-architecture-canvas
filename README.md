@@ -35,9 +35,16 @@ chmod +x scripts/publish-github.sh
 
 ## GitHub Pages
 
-Статическая версия схемы публикуется автоматически из папки `docs/` при push в `main`.
+Интерактивная версия схемы публикуется автоматически из папки `docs/` при push в `main`.
 
 - Сайт: **https://bbenicore-web.github.io/megafon-cpo-architecture-canvas/**
 - Workflow: `.github/workflows/pages.yml`
 
-Интерактивная версия с фокусом и выбором элементов — в Cursor Canvas (`canvases/megafon-cpo-architecture.canvas.tsx`).
+**Интерактивность на Pages:**
+- режим фокуса и подсветка колонок платформ
+- выбор CPO направлений и бизнес-лидеров
+- кликабельные плитки сервисов и сценариев
+- фильтр RACI
+- выбор шагов модели взаимодействия и зон ответственности
+
+Полная версия с Cursor Canvas — `canvases/megafon-cpo-architecture.canvas.tsx`.
