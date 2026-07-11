@@ -13,12 +13,12 @@ window.ARCH_DATA = {
     { id: 'cpo-monetization', label: 'CPO — Монетизация', domain: 'telecom', teamIds: ['monetization'] },
   ],
   teams: [
-    { id: 'tariffs', label: 'Витрины Тарифов', direction: 'profit' },
+    { id: 'tariffs', label: 'Витрина тарифов', direction: 'lead' },
     { id: 'subscriber', label: 'Стать абонентом', direction: 'lead' },
     { id: 'home-internet', label: 'Домашний интернет', direction: 'lead' },
-    { id: 'monetization', label: 'Монетизация ЛК и самообслуживание', direction: 'retention' },
-    { id: 'persona', label: 'Персона — ДГП', direction: 'lead' },
-    { id: 'mega-internet', label: 'Mega Интернет и контроль расходов', direction: 'retention' },
+    { id: 'monetization', label: 'Монетизация', direction: 'profit' },
+    { id: 'persona', label: 'Персона', direction: 'retention' },
+    { id: 'mega-internet', label: 'МегаИнтернет', direction: 'retention' },
   ],
   directions: [
     { id: 'lead', label: 'Лид генераторы' },

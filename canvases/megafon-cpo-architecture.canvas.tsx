@@ -254,12 +254,12 @@ const DIRECTIONS: Array<{ id: DirectionId; label: string }> = [
 ];
 
 const PRODUCT_TEAMS: ProductTeam[] = [
-	{ id: 'tariffs', label: 'Витрины Тарифов', direction: 'profit' },
+	{ id: 'tariffs', label: 'Витрина тарифов', direction: 'lead' },
 	{ id: 'subscriber', label: 'Стать абонентом', direction: 'lead' },
 	{ id: 'home-internet', label: 'Домашний интернет', direction: 'lead' },
-	{ id: 'monetization', label: 'Монетизация ЛК и самообслуживание', direction: 'retention' },
-	{ id: 'persona', label: 'Персона — ДГП', direction: 'lead' },
-	{ id: 'mega-internet', label: 'Mega Интернет и контроль расходов', direction: 'retention' },
+	{ id: 'monetization', label: 'Монетизация', direction: 'profit' },
+	{ id: 'persona', label: 'Персона', direction: 'retention' },
+	{ id: 'mega-internet', label: 'МегаИнтернет', direction: 'retention' },
 ];
 
 const DOMAINS: DomainConfig[] = [
