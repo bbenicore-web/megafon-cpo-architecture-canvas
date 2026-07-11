@@ -33,6 +33,11 @@ chmod +x scripts/publish-github.sh
 ./scripts/publish-github.sh
 ```
 
-Скрипт создаст публичный репозиторий `bbenicore-web/megafon-cpo-architecture-canvas` и отправит туда `main`.
+## GitHub Pages
 
-Если `gh` ещё не авторизован, скрипт попросит выполнить `gh auth login`.
+Статическая версия схемы публикуется автоматически из папки `docs/` при push в `main`.
+
+- Сайт: **https://bbenicore-web.github.io/megafon-cpo-architecture-canvas/**
+- Workflow: `.github/workflows/pages.yml`
+
+Интерактивная версия с фокусом и выбором элементов — в Cursor Canvas (`canvases/megafon-cpo-architecture.canvas.tsx`).
