@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MegaFon CPO Architecture</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="page-header">
+    <div class="header-row">
+      <div>
+        <h1>MegaFon CPO Architecture</h1>
+        <p>Интерактивная архитектура CPO-структуры цифрового продукта МегаФона</p>
+      </div>
+      <div class="toolbar" id="toolbar"></div>
+    </div>
+    <div class="status-bar" id="status-bar">Кликните на элемент схемы или наведите на колонку платформы</div>
+  </header>
+
+  <main class="container">
+    <section class="panel" id="business-section"></section>
+    <section class="banner" id="digital-cpo"></section>
+
+    <div class="layout-3col">
+      <aside class="sidebar" id="sidebar-left"></aside>
+      <div class="main-col" id="domains-section"></div>
+      <aside class="sidebar" id="sidebar-right"></aside>
+    </div>
+
+    <section class="panel" id="integration-section"></section>
+    <section class="panel" id="teams-section"></section>
+    <details class="panel collapsible" id="flow-section" open></details>
+    <details class="panel collapsible" id="roles-section" open></details>
+    <details class="panel collapsible" id="raci-section"></details>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

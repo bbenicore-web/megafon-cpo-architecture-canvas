@@ -22,9 +22,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Prepare site bundle
+        run: |
+          mkdir -p _site
+          cp index.html app.js data.js styles.css .nojekyll _site/
       - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with:
-          path: docs
+          path: _site
       - uses: actions/deploy-pages@v4
         id: deployment
