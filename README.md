@@ -35,10 +35,10 @@ chmod +x scripts/publish-github.sh
 
 ## GitHub Pages
 
-Интерактивная версия схемы публикуется автоматически из папки `docs/` при push в `main`.
+Интерактивная версия схемы публикуется автоматически при push в `main` из корня репозитория (`index.html`, `app.js`, `data.js`, `styles.css`).
 
 - Сайт: **https://bbenicore-web.github.io/megafon-cpo-architecture-canvas/**
-- Workflow: `.github/workflows/pages.yml`
+- Workflow: `.github/workflows/pages.yml` (копирует корневые файлы в `_site` и деплоит через GitHub Actions)
 
 **Интерактивность на Pages:**
 - режим фокуса и подсветка колонок платформ
