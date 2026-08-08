@@ -575,6 +575,41 @@ body.edit-mode [data-edit-path].edit-selected {
   font-size: 0.68rem;
 }
 
+.edit-section-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.35rem;
+  margin-bottom: 0.25rem;
+}
+
+.edit-del-btn {
+  padding: 0.15rem 0.4rem;
+  border: 1px solid #fca5a5;
+  border-radius: 4px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 0.62rem;
+}
+
+.edit-del-btn:hover {
+  background: #fee2e2;
+  border-color: #ef4444;
+}
+
+.edit-meta {
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+
+#edit-delete {
+  color: #b91c1c;
+  border-color: #fca5a5;
+}
+
+#edit-delete:hover {
+  background: #fef2f2;
+}
+
 .edit-add-raci { margin-bottom: 0.5rem; }
 
 .edit-toast {

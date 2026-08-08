@@ -69,36 +69,123 @@
     return true;
   }
 
-  function deleteByPath(path) {
+  function entityIdFromPath(path) {
     const parts = path.split('.');
+    if (parts.length >= 2 && /^(businessLeaders|cpoRoles|teams|flowSteps|roleZones|integration)$/.test(parts[0])) {
+      return parts[1];
+    }
+    return null;
+  }
+
+  function canDelete(path, type) {
+    const D = getData();
+    if (type === 'tile') return true;
+    if (type === 'section') return true;
+    if (type === 'metric') return D.metrics.length > 1;
+    if (type === 'flowStep') return D.flowSteps.length > 1;
+    if (type === 'roleZone') return D.roleZones.length > 1;
+    if (type === 'raciRow') return D.raci.length > 1;
+    if (type === 'businessLeader') return D.businessLeaders.length > 1;
+    if (type === 'cpoRole') return true;
+    if (type === 'team') return true;
+    if (type === 'text') {
+      if (/^businessLeaders\.[^.]+$/.test(path)) return D.businessLeaders.length > 1;
+      if (/^businessLeaders\.[^.]+\.label$/.test(path)) return D.businessLeaders.length > 1;
+      if (/^cpoRoles\.[^.]+\.label$/.test(path)) return true;
+      if (/^teams\.[^.]+\.label$/.test(path)) return true;
+    }
+    return false;
+  }
+
+  function deleteLabel(type) {
+    const labels = {
+      section: 'Удалить секцию',
+      tile: 'Удалить элемент',
+      metric: 'Удалить метрику',
+      flowStep: 'Удалить шаг',
+      roleZone: 'Удалить зону',
+      raciRow: 'Удалить строку',
+      businessLeader: 'Удалить лидера',
+      cpoRole: 'Удалить CPO',
+      team: 'Удалить команду',
+    };
+    return labels[type] || 'Удалить';
+  }
+
+  function deleteByPath(path, type) {
+    const parts = path.split('.');
+    const D = getData();
 
     if (parts[parts.length - 2] === 'items') {
       const id = parts[parts.length - 1];
-      let cur = getData();
-      for (let i = 0; i < parts.length - 2; i++) {
-        cur = resolveSegment(cur, parts[i]);
-      }
+      let cur = D;
+      for (let i = 0; i < parts.length - 2; i++) cur = resolveSegment(cur, parts[i]);
+      if (!cur?.items) return false;
       cur.items = cur.items.filter((item) => item.id !== id);
-      return;
+      return true;
     }
 
-    if (parts[0] === 'integration' && parts.length === 2) {
-      const id = parts[1];
-      const D = getData();
+    if (parts[0] === 'domains' && parts[2] === 'sections' && parts.length === 4 && /^\d+$/.test(parts[3])) {
+      let domain = D;
+      for (let i = 0; i < 2; i++) domain = resolveSegment(domain, parts[i]);
+      if (!domain?.sections) return false;
+      domain.sections.splice(Number(parts[3]), 1);
+      return true;
+    }
+
+    if (parts[0] === 'integration') {
+      const id = entityIdFromPath(path);
+      if (!id) return false;
       D.integration = D.integration.filter((item) => item.id !== id);
-      return;
+      return true;
     }
 
     if (parts[0] === 'raci' && parts.length === 2) {
-      getData().raci.splice(Number(parts[1]), 1);
-      return;
+      D.raci.splice(Number(parts[1]), 1);
+      return true;
     }
 
-    const { parent, key } = getParentAndKey(path);
-    if (parent == null) return;
-    if (Array.isArray(parent) && /^\d+$/.test(key)) {
-      parent.splice(Number(key), 1);
+    if (parts[0] === 'metrics' && parts.length === 2) {
+      D.metrics.splice(Number(parts[1]), 1);
+      return true;
     }
+
+    if (parts[0] === 'businessLeaders') {
+      const id = entityIdFromPath(path.replace(/\.label$/, ''));
+      if (!id) return false;
+      D.businessLeaders = D.businessLeaders.filter((item) => item.id !== id);
+      return true;
+    }
+
+    if (parts[0] === 'cpoRoles') {
+      const id = entityIdFromPath(path.replace(/\.label$/, ''));
+      if (!id) return false;
+      D.cpoRoles = D.cpoRoles.filter((item) => item.id !== id);
+      return true;
+    }
+
+    if (parts[0] === 'teams') {
+      const id = entityIdFromPath(path.replace(/\.label$/, ''));
+      if (!id) return false;
+      D.teams = D.teams.filter((item) => item.id !== id);
+      return true;
+    }
+
+    if (parts[0] === 'flowSteps') {
+      const id = entityIdFromPath(path);
+      if (!id) return false;
+      D.flowSteps = D.flowSteps.filter((item) => item.id !== id);
+      return true;
+    }
+
+    if (parts[0] === 'roleZones') {
+      const id = entityIdFromPath(path);
+      if (!id) return false;
+      D.roleZones = D.roleZones.filter((item) => item.id !== id);
+      return true;
+    }
+
+    return false;
   }
 
   function newId(prefix) {
@@ -259,35 +346,42 @@
     return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
   }
 
+  function updateDeleteButton(path, type) {
+    const deleteBtn = document.getElementById('edit-delete');
+    if (canDelete(path, type)) {
+      deleteBtn.style.display = 'inline-block';
+      deleteBtn.textContent = deleteLabel(type);
+    } else {
+      deleteBtn.style.display = 'none';
+    }
+  }
+
   function renderPanelForm(path, type) {
     const body = document.getElementById('edit-panel-body');
-    const deleteBtn = document.getElementById('edit-delete');
     let html = `<p class="edit-path">${path}</p>`;
     const val = getByPath(path);
 
     if (type === 'text') {
       html += fixField('Текст', 'ef-label', val);
-      deleteBtn.style.display = 'none';
     } else if (type === 'tile') {
       html += fixField('Название', 'ef-label', val.label);
       html += fixField('Подсказка', 'ef-hint', val.hint || '');
-      deleteBtn.style.display = path.includes('.items.') ? 'inline-block' : 'none';
+    } else if (type === 'section') {
+      html += fixField('Заголовок секции', 'ef-title', val.title);
+      html += `<p class="edit-meta">${val.items.length} элемент(ов) · тип: ${val.kind === 'text' ? 'текст' : 'плитки'}</p>`;
     } else if (type === 'metric') {
       html += fixField('Метрика', 'ef-label', val.label);
       html += fixField('Описание', 'ef-description', val.description);
-      deleteBtn.style.display = 'none';
     } else if (type === 'flowStep') {
       html += fixField('Заголовок', 'ef-title', val.title);
       html += fixField('Подзаголовок', 'ef-subtitle', val.subtitle || '');
       html += fixField('Пункты (по одному на строку)', 'ef-items', (val.items || []).join('\n'), { textarea: true, rows: 6 });
-      deleteBtn.style.display = 'none';
     } else if (type === 'roleZone') {
       html += fixField('Заголовок', 'ef-title', val.title);
       html += fixField('Подзаголовок', 'ef-subtitle', val.subtitle);
       html += fixField('Владение', 'ef-ownership', val.ownership, { textarea: true, rows: 2 });
       html += fixField('Ответственности (по одной на строку)', 'ef-resp', (val.responsibilities || []).join('\n'), { textarea: true, rows: 6 });
       html += fixField('KPI', 'ef-kpis', val.kpis);
-      deleteBtn.style.display = 'none';
     } else if (type === 'raciRow') {
       html += fixField('Зона', 'ef-area', val.area);
       html += fixField('Head Telecom', 'ef-telecom', val.telecom);
@@ -295,10 +389,19 @@
       html += fixField('Head VAS', 'ef-vas', val.vas);
       html += fixField('Platform', 'ef-platform', val.platform);
       html += fixField('Product (P&L)', 'ef-product', val.product);
-      deleteBtn.style.display = 'inline-block';
+    } else if (type === 'businessLeader') {
+      const leader = getByPath(path.replace(/\.label$/, ''));
+      html += fixField('Лидер', 'ef-label', leader?.label || '');
+    } else if (type === 'cpoRole') {
+      const cpo = getByPath(path.replace(/\.label$/, ''));
+      html += fixField('CPO', 'ef-label', cpo?.label || '');
+    } else if (type === 'team') {
+      const team = getByPath(path.replace(/\.label$/, ''));
+      html += fixField('Команда', 'ef-label', team?.label || '');
     }
 
     body.innerHTML = html;
+    updateDeleteButton(path, type);
   }
 
   function readField(id) {
@@ -326,6 +429,8 @@
       } else if (type === 'tile') {
         val.label = readField('ef-label');
         val.hint = readField('ef-hint');
+      } else if (type === 'section') {
+        val.title = readField('ef-title');
       } else if (type === 'metric') {
         val.label = readField('ef-label');
         val.description = readField('ef-description');
@@ -346,6 +451,15 @@
         val.vas = readField('ef-vas');
         val.platform = readField('ef-platform');
         val.product = readField('ef-product');
+      } else if (type === 'businessLeader' || (type === 'text' && /^businessLeaders\./.test(selectedPath))) {
+        const leader = getByPath(selectedPath.replace(/\.label$/, '')) || val;
+        leader.label = readField('ef-label');
+      } else if (type === 'cpoRole' || (type === 'text' && /^cpoRoles\./.test(selectedPath))) {
+        const cpo = getByPath(selectedPath.replace(/\.label$/, '')) || val;
+        cpo.label = readField('ef-label');
+      } else if (type === 'team' || (type === 'text' && /^teams\./.test(selectedPath))) {
+        const team = getByPath(selectedPath.replace(/\.label$/, '')) || val;
+        team.label = readField('ef-label');
       } else {
         showToast('Ошибка: неизвестный тип элемента');
         return;
@@ -362,15 +476,44 @@
   }
 
   function deleteCurrent() {
-    if (!selectedPath || !confirm('Удалить этот элемент?')) return;
-    deleteByPath(selectedPath);
-    saveDraft();
+    if (!selectedPath || !selectedType) return;
+    if (!canDelete(selectedPath, selectedType)) {
+      showToast('Этот блок нельзя удалить');
+      return;
+    }
+    const label = deleteLabel(selectedType).toLowerCase();
+    if (!confirm(`${label.charAt(0).toUpperCase()}${label.slice(1)}?`)) return;
+    if (!deleteByPath(selectedPath, selectedType)) {
+      showToast('Ошибка: не удалось удалить');
+      return;
+    }
+    saveDraft(true);
     closePanel();
     render();
-    showToast('Элемент удалён');
+    showToast('Блок удалён');
+  }
+
+  function injectSectionActions() {
+    document.querySelectorAll('.section-block[data-section]').forEach((block) => {
+      if (block.querySelector('.edit-section-actions')) return;
+      const [domainId, sectionIdx] = block.dataset.section.split('.');
+      const actions = document.createElement('div');
+      actions.className = 'edit-section-actions';
+      actions.innerHTML = `
+        <button type="button" class="edit-del-btn" data-action="delete-section">× Секцию</button>
+      `;
+      actions.querySelector('[data-action="delete-section"]').addEventListener('click', (e) => {
+        e.stopPropagation();
+        selectedPath = `domains.${domainId}.sections.${sectionIdx}`;
+        selectedType = 'section';
+        deleteCurrent();
+      });
+      block.insertBefore(actions, block.firstChild);
+    });
   }
 
   function injectAddButtons() {
+    injectSectionActions();
     document.querySelectorAll('.section-block[data-section]').forEach((block) => {
       if (block.querySelector('.edit-add-btn')) return;
       const btn = document.createElement('button');
@@ -424,11 +567,19 @@
 
   function bindEditClicks() {
     document.body.addEventListener('click', (e) => {
+      if (e.target.closest('.edit-section-actions, .edit-del-btn')) return;
       const target = e.target.closest('[data-edit-path]');
       if (!target || target.closest('.edit-panel, .edit-toolbar')) return;
       e.preventDefault();
       e.stopPropagation();
-      openPanel(target.dataset.editPath, target.dataset.editType);
+      let type = target.dataset.editType;
+      let path = target.dataset.editPath;
+      if (type === 'text') {
+        if (/^businessLeaders\.[^.]+\.label$/.test(path)) type = 'businessLeader';
+        else if (/^cpoRoles\.[^.]+\.label$/.test(path)) type = 'cpoRole';
+        else if (/^teams\.[^.]+\.label$/.test(path)) type = 'team';
+      }
+      openPanel(path, type);
     });
   }
 
