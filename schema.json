@@ -288,7 +288,7 @@
       "platformTitle": "ТЕЛЕКОМ ПЛАТФОРМА",
       "sections": [
         {
-          "title": "ВИТРИНЫ И НАВИГАЦИЯ ТЕЛЕКОМ",
+          "title": "ДОМЕННЫЕ CAPABILITIES · Витрины и навигация",
           "kind": "tiles",
           "items": [
             {
@@ -324,7 +324,7 @@
           ]
         },
         {
-          "title": "ОСНОВНЫЕ ТЕЛЕКОМ-СЦЕНАРИИ",
+          "title": "ПРОДУКТОВЫЕ CAPABILITIES · Телеком-сценарии",
           "kind": "tiles",
           "items": [
             {
@@ -400,7 +400,7 @@
           ]
         },
         {
-          "title": "СЕРВИСЫ ПЛАТФОРМЫ ТЕЛЕКОМ",
+          "title": "ДОМЕННЫЕ CAPABILITIES · Сервисы платформы",
           "kind": "text",
           "items": [
             {
@@ -447,11 +447,11 @@
       "id": "cx",
       "color": "blue",
       "cpoTitle": "CPO CX",
-      "cpoSubtitle": "КРОСС-ДОМЕН — клиентский опыт и взаимодействие",
+      "cpoSubtitle": "КРОСС-ДОМЕН — delivery сквозных capabilities",
       "platformTitle": "CX ПЛАТФОРМА",
       "sections": [
         {
-          "title": "ВИТРИНЫ И НАВИГАЦИЯ CX",
+          "title": "СКВОЗНЫЕ CAPABILITIES · Опыт и platform services",
           "kind": "tiles",
           "items": [
             {
@@ -480,31 +480,15 @@
               "hint": "Контентные блоки и stories"
             },
             {
-              "id": "c6",
-              "label": "Onboarding",
-              "hint": "Онбординг новых пользователей"
-            },
-            {
               "id": "c7",
               "label": "Персонализация",
               "hint": "Персонализированный опыт"
             },
             {
-              "id": "c8",
-              "label": "Feedback",
-              "hint": "Обратная связь и опросы"
-            },
-            {
               "id": "c9",
               "label": "UI Components",
               "hint": "Design system и UI-kit"
-            }
-          ]
-        },
-        {
-          "title": "СЕРВИСЫ CX ПЛАТФОРМЫ",
-          "kind": "tiles",
-          "items": [
+            },
             {
               "id": "c10",
               "label": "Auth & Profile",
@@ -543,7 +527,23 @@
           ]
         },
         {
-          "title": "ЕДИНЫЕ ПРИНЦИПЫ CX",
+          "title": "ПРОДУКТОВЫЕ CAPABILITIES · CX-сценарии",
+          "kind": "tiles",
+          "items": [
+            {
+              "id": "c6",
+              "label": "Onboarding",
+              "hint": "Онбординг новых пользователей"
+            },
+            {
+              "id": "c8",
+              "label": "Feedback",
+              "hint": "Обратная связь и опросы"
+            }
+          ]
+        },
+        {
+          "title": "СКВОЗНЫЕ CAPABILITIES · Принципы",
           "kind": "text",
           "items": [
             {
@@ -582,7 +582,7 @@
       "platformTitle": "EXTRA PRODUCTS",
       "sections": [
         {
-          "title": "ВИТРИНЫ И НАВИГАЦИЯ Extra Products",
+          "title": "ПРОДУКТОВЫЕ CAPABILITIES · Extra Products",
           "kind": "tiles",
           "items": [
             {
@@ -618,7 +618,7 @@
           ]
         },
         {
-          "title": "СЕРВИСЫ VAS ПЛАТФОРМЫ",
+          "title": "ДОМЕННЫЕ CAPABILITIES · Сервисы платформы",
           "kind": "tiles",
           "items": [
             {
@@ -796,7 +796,7 @@
       "cpoSubtitle": "CPO продуктовых направлений",
       "cpoHint": "Запросы от CPO направлений → платформа Telecom"
     },
-    "platformWhyText": "Платформа даёт общие capabilities — каталоги, поиск, навигацию, профиль и сервисы — всем доменам. Новые продукты запускаются быстрее и выглядят единообразно.",
+    "platformWhyText": "Продуктовая платформа строится из сквозных, доменных и продуктовых capabilities. CX delivery-зона сквозных capabilities; Telecom и Extra Products — доменные building blocks и клиентские сценарии.",
     "digitalCpoBadge": "Платформа",
     "sidebarZonePrefix": "ЗОНА · ",
     "sidebarZoneHint": "Наведите на колонку платформы или откройте блок «2. Описание ролей» ниже.",
@@ -810,6 +810,8 @@
       "Platform",
       "Product (P&L)"
     ],
-    "hiddenBlocks": []
+    "hiddenBlocks": [
+      "integration"
+    ]
   }
 }
