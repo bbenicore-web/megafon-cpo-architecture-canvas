@@ -149,18 +149,22 @@ button { font: inherit; cursor: pointer; }
 .banner.highlighted { outline: 2px solid #fff; outline-offset: -4px; }
 .banner small { display: block; font-weight: 400; font-size: 0.8rem; opacity: 0.9; margin-top: 0.2rem; }
 
-.layout-3col {
+.layout-3col,
+.layout-platforms {
   display: grid;
-  grid-template-columns: 200px 1fr 220px;
+  grid-template-columns: 220px minmax(0, 1fr);
   gap: 0.75rem;
   align-items: start;
 }
 
 @media (max-width: 960px) {
-  .layout-3col { grid-template-columns: 1fr; }
+  .layout-3col,
+  .layout-platforms { grid-template-columns: 1fr; }
 }
 
 .sidebar, .main-col { display: flex; flex-direction: column; gap: 0.75rem; }
+.sidebar-zone { min-width: 0; }
+.main-col { min-width: 0; width: 100%; }
 
 .chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 
@@ -226,7 +230,7 @@ button { font: inherit; cursor: pointer; }
 
 .arrow-hint.active, .muted.active { color: var(--green); font-weight: 600; }
 
-.domains { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
+.domains { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; width: 100%; }
 .domains-sync { align-items: stretch; }
 @media (max-width: 960px) { .domains { grid-template-columns: 1fr; } }
 

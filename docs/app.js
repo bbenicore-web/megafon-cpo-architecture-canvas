@@ -291,51 +291,52 @@ function renderSidebar() {
   const D = getData();
   const ui = D.ui || {};
   const left = document.getElementById('sidebar-left');
+  const showZone = isBlockVisible('sidebarRight');
   const showWhy = isBlockVisible('platformWhy');
   const showMetrics = isBlockVisible('platformMetrics');
-  if (!showWhy && !showMetrics) {
-    left.hidden = true;
-    left.innerHTML = '';
-  } else {
-    left.hidden = false;
+
+  let html = '';
+
+  if (showZone) {
+    const zone = getSidebarZone();
+    const zonePinned = isEditFrozen();
+    html += panel(
+      `${ui.sidebarZonePrefix || 'ЗОНА · '}${zone.title.toUpperCase()}${zonePinned ? ' 📌' : ''}`,
+      `<div class="sidebar-zone-body"${editAttrs(`roleZones.${zone.id}`, 'roleZone')}>
+        <p class="muted">${zone.ownership}</p>
+        <ul>${zone.responsibilities.map((r) => `<li>${r}</li>`).join('')}</ul>
+        <p class="muted">KPI: ${zone.kpis}</p>
+      </div>
+      <p class="muted sidebar-hint"${editAttrs('ui.sidebarZoneHint', 'text')}>${zonePinned ? 'Зона закреплена — можно редактировать' : (ui.sidebarZoneHint || '')}</p>`,
+      null,
+      'sidebarRight'
+    );
+  }
+
+  if (showWhy) {
+    html += panel(ui.panels?.platformWhy || 'ЗАЧЕМ ПЛАТФОРМА', `<p class="muted"${editAttrs('ui.platformWhyText', 'text')}>${ui.platformWhyText || ''}</p>`, 'ui.panels.platformWhy', 'platformWhy');
+  }
+
+  if (showMetrics) {
     const metrics = D.metrics.map((m, i) => `
       <div class="metric"${editAttrs(`metrics.${i}`, 'metric')}>
         <strong>${m.label}</strong>
         <p>${m.description}</p>
       </div>
     `).join('');
-    let html = '';
-    if (showWhy) {
-      html += panel(ui.panels?.platformWhy || 'ЗАЧЕМ ПЛАТФОРМА', `<p class="muted"${editAttrs('ui.platformWhyText', 'text')}>${ui.platformWhyText || ''}</p>`, 'ui.panels.platformWhy', 'platformWhy');
-    }
-    if (showMetrics) {
-      html += panel(ui.panels?.platformMetrics || 'СВЯЗЬ С БИЗНЕСОМ', metrics, 'ui.panels.platformMetrics', 'platformMetrics');
-    }
-    left.innerHTML = html;
+    html += panel(ui.panels?.platformMetrics || 'СВЯЗЬ С БИЗНЕСОМ', metrics, 'ui.panels.platformMetrics', 'platformMetrics');
   }
 
-  const right = document.getElementById('sidebar-right');
-  if (!isBlockVisible('sidebarRight')) {
-    right.hidden = true;
-    right.innerHTML = '';
-    clearBlockElement(right);
+  if (!html) {
+    left.hidden = true;
+    left.innerHTML = '';
+    clearBlockElement(left);
     return;
   }
-  right.hidden = false;
 
-  const zone = getSidebarZone();
-  const zonePinned = isEditFrozen();
-  right.innerHTML = panel(
-    `${ui.sidebarZonePrefix || 'ЗОНА · '}${zone.title.toUpperCase()}${zonePinned ? ' 📌' : ''}`,
-    `<div class="sidebar-zone-body"${editAttrs(`roleZones.${zone.id}`, 'roleZone')}>
-      <p class="muted">${zone.ownership}</p>
-      <ul>${zone.responsibilities.map((r) => `<li>${r}</li>`).join('')}</ul>
-      <p class="muted">KPI: ${zone.kpis}</p>
-    </div>
-    <p class="muted sidebar-hint"${editAttrs('ui.sidebarZoneHint', 'text')}>${zonePinned ? 'Зона закреплена — можно редактировать' : (ui.sidebarZoneHint || '')}</p>`,
-    null
-  );
-  markBlockElement(right, 'sidebarRight');
+  left.hidden = false;
+  left.innerHTML = html;
+  clearBlockElement(left);
 }
 
 function domainCellClass(d) {

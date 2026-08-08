@@ -464,7 +464,7 @@
   }
 
   function injectZonePin() {
-    const sidebar = document.getElementById('sidebar-right');
+    const sidebar = document.getElementById('sidebar-left');
     if (!sidebar || !isBlockVisible('sidebarRight')) return;
     const inner = sidebar.querySelector('.panel-inner');
     if (!inner) return;
@@ -920,7 +920,7 @@
     }
 
     const metricsPanel = isBlockVisible('platformMetrics')
-      ? document.querySelector('#sidebar-left .panel-inner:nth-child(2) .panel-body')
+      ? document.querySelector('#sidebar-left [data-block-id="platformMetrics"] .panel-body')
       : null;
     if (metricsPanel && !metricsPanel.querySelector('.edit-add-metric')) {
       const btn = document.createElement('button');
