@@ -451,7 +451,7 @@ window.ARCH_DATA = {
       "platformTitle": "CX ПЛАТФОРМА",
       "sections": [
         {
-          "title": "КЛИЕНТСКИЙ ОПЫТ И ВЗАИМОДЕЙСТВИЕ",
+          "title": "ВИТРИНЫ И НАВИГАЦИЯ CX",
           "kind": "tiles",
           "items": [
             {
@@ -577,12 +577,12 @@ window.ARCH_DATA = {
     {
       "id": "vas",
       "color": "orange",
-      "cpoTitle": "CPO VAS / PARTNERS",
+      "cpoTitle": "CPO EXTRA PRODUCTS",
       "cpoSubtitle": "БИЗНЕС — VAS-направления и партнёрские сервисы",
-      "platformTitle": "VAS ПЛАТФОРМА",
+      "platformTitle": "EXTRA PRODUCTS",
       "sections": [
         {
-          "title": "КАТЕГОРИИ VAS И ПАРТНЁРСКИХ СЕРВИСОВ",
+          "title": "ВИТРИНЫ И НАВИГАЦИЯ Extra Products",
           "kind": "tiles",
           "items": [
             {
