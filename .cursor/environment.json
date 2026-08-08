@@ -1,0 +1,17 @@
+{
+  "name": "MegaFon CPO Architecture Canvas",
+  "install": "test -f index.html && test -f app.js && test -f data.js && test -f styles.css && echo 'Static site: no dependencies to install; required files present.'",
+  "terminals": [
+    {
+      "name": "static-server",
+      "command": "python3 -m http.server 8000 --bind 0.0.0.0",
+      "description": "Serves the interactive architecture site (index.html, app.js, data.js, styles.css) at http://localhost:8000, mirroring the GitHub Pages bundle."
+    }
+  ],
+  "ports": [
+    {
+      "name": "web",
+      "port": 8000
+    }
+  ]
+}
