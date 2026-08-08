@@ -32,7 +32,9 @@ function teamCountLabel(count) {
 
 function zoneById(id) {
   const D = getData();
-  return D.roleZones.find((z) => z.id === id) || D.roleZones[0];
+  return D.roleZones.find((z) => z.id === id) || D.roleZones[0] || {
+    id: 'empty', title: '—', subtitle: '', color: 'purple', ownership: '', responsibilities: [], kpis: '',
+  };
 }
 
 function cpoById(id) {
@@ -281,7 +283,7 @@ function renderDomains() {
     `;
   }).join('');
 
-  document.getElementById('domains-section').innerHTML = `<div class="domains">${html}</div>`;
+  document.getElementById('domains-section').innerHTML = `<div class="domains" id="domains-grid">${html}</div>`;
 }
 
 function renderIntegration() {

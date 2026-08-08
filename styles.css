@@ -619,7 +619,44 @@ body.edit-mode [data-edit-path].edit-selected {
   margin-top: 0.5rem;
 }
 
-.edit-add-section { margin-top: 0.35rem; }
+.edit-add-menu {
+  padding: 0.35rem 0.5rem;
+  border: 1px solid #ca8a04;
+  border-radius: 4px;
+  background: #fffbeb;
+  font-size: 0.72rem;
+  color: #92400e;
+  cursor: pointer;
+}
+
+.edit-quick-del {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid #fca5a5;
+  border-radius: 50%;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 0.85rem;
+  line-height: 1;
+  z-index: 2;
+  display: none;
+}
+
+body.edit-mode [data-edit-path]:hover > .edit-quick-del,
+body.edit-mode [data-edit-path].edit-selected > .edit-quick-del {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-add-domain {
+  margin-top: 0.35rem;
+  width: 100%;
+}
 
 .sidebar-hint { margin-top: 0.5rem; font-size: 0.68rem; }
 
