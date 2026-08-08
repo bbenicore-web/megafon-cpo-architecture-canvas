@@ -317,7 +317,7 @@
     bar.className = 'edit-toolbar';
     bar.innerHTML = `
       <span class="edit-badge">WYSIWYG</span>
-      <span class="edit-hint">Кликните элемент для редактирования</span>
+      <span class="edit-hint">Кликните элемент · «Закрепить динамику» для редактирования sidebar</span>
       <div class="edit-toolbar-actions">
         <button type="button" class="btn" id="edit-save-draft">Сохранить черновик</button>
         <button type="button" class="btn" id="edit-export-json">Экспорт JSON</button>
@@ -371,7 +371,64 @@
     document.querySelectorAll('[data-edit-path].edit-selected').forEach((el) => el.classList.remove('edit-selected'));
   }
 
+  function pinZoneForEdit(path, type) {
+    if (type === 'roleZone' && /^roleZones\.[^.]+$/.test(path)) {
+      window.ArchEditPin.pinnedZoneId = path.split('.')[1];
+      window.ArchEditPin.freezeDynamic = true;
+    }
+  }
+
+  function injectZonePin() {
+    const sidebar = document.getElementById('sidebar-right');
+    if (!sidebar) return;
+
+    let pin = sidebar.querySelector('.edit-zone-pin');
+    if (!pin) {
+      pin = document.createElement('div');
+      pin.className = 'edit-zone-pin';
+      const inner = sidebar.querySelector('.panel-inner') || sidebar;
+      inner.insertBefore(pin, inner.firstChild);
+    }
+
+    const D = getData();
+    pin.innerHTML = `
+      <label class="edit-zone-label freeze-label">
+        <input type="checkbox" id="edit-freeze-dynamic" ${window.ArchEditPin.freezeDynamic ? 'checked' : ''}>
+        <span>Закрепить динамику</span>
+      </label>
+      <label class="edit-zone-label">
+        <span>Зона sidebar:</span>
+        <select id="edit-pinned-zone"${window.ArchEditPin.freezeDynamic ? '' : ' disabled'}>
+          ${D.roleZones.map((z) => `<option value="${z.id}"${window.ArchEditPin.pinnedZoneId === z.id ? ' selected' : ''}>${z.title}</option>`).join('')}
+        </select>
+      </label>
+    `;
+
+    pin.querySelector('#edit-freeze-dynamic').addEventListener('change', (e) => {
+      window.ArchEditPin.freezeDynamic = e.target.checked;
+      if (window.ArchEditPin.freezeDynamic) {
+        window.ArchApp.setState({
+          focusMode: false,
+          hoveredDomain: null,
+          selectedCpo: null,
+          selectedRoleZone: null,
+          selectedTile: null,
+          selectedFlowStep: null,
+          highlightedLeader: null,
+        });
+      } else {
+        render();
+      }
+    });
+
+    pin.querySelector('#edit-pinned-zone').addEventListener('change', (e) => {
+      window.ArchEditPin.pinnedZoneId = e.target.value;
+      render();
+    });
+  }
+
   function openPanel(path, type) {
+    pinZoneForEdit(path, type);
     selectedPath = path;
     selectedType = type;
     document.querySelectorAll('[data-edit-path].edit-selected').forEach((el) => el.classList.remove('edit-selected'));
@@ -649,13 +706,120 @@
       btn.textContent = '+ Добавить строку RACI';
       btn.addEventListener('click', () => {
         getData().raci.push({ area: 'Новая зона', telecom: 'C', cx: 'C', vas: 'C', platform: 'R', product: 'I' });
-        saveDraft();
+        saveDraft(true);
         render();
-        const idx = getData().raci.length - 1;
-        openPanel(`raci.${idx}`, 'raciRow');
+        openPanel(`raci.${getData().raci.length - 1}`, 'raciRow');
       });
       raciSection.querySelector('.panel-body').prepend(btn);
     }
+
+    const businessSection = document.getElementById('business-section');
+    if (businessSection && !businessSection.querySelector('.edit-add-leader')) {
+      const wrap = document.createElement('div');
+      wrap.className = 'edit-block-actions';
+      wrap.innerHTML = `
+        <button type="button" class="edit-add-btn edit-add-leader">+ Лидер</button>
+        <button type="button" class="edit-add-btn edit-add-cpo">+ CPO</button>
+      `;
+      wrap.querySelector('.edit-add-leader').addEventListener('click', () => {
+        const id = newId('leader-');
+        getData().businessLeaders.push({ id, label: 'Новый лидер' });
+        saveDraft(true);
+        render();
+        openPanel(`businessLeaders.${id}.label`, 'businessLeader');
+      });
+      wrap.querySelector('.edit-add-cpo').addEventListener('click', () => {
+        const id = newId('cpo-');
+        getData().cpoRoles.push({ id, label: 'Новый CPO', domain: 'telecom', teamIds: [] });
+        saveDraft(true);
+        render();
+        openPanel(`cpoRoles.${id}`, 'cpoRole');
+      });
+      businessSection.querySelector('.panel-body').appendChild(wrap);
+    }
+
+    const metricsPanel = document.querySelector('#sidebar-left .panel-inner:nth-child(2) .panel-body');
+    if (metricsPanel && !metricsPanel.querySelector('.edit-add-metric')) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'edit-add-btn edit-add-metric';
+      btn.textContent = '+ Метрика';
+      btn.addEventListener('click', () => {
+        getData().metrics.push({ label: 'Новая метрика', description: '' });
+        saveDraft(true);
+        render();
+        openPanel(`metrics.${getData().metrics.length - 1}`, 'metric');
+      });
+      metricsPanel.appendChild(btn);
+    }
+
+    const flowSection = document.getElementById('flow-section');
+    if (flowSection && !flowSection.querySelector('.edit-add-flow')) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'edit-add-btn edit-add-flow';
+      btn.textContent = '+ Шаг flow';
+      btn.addEventListener('click', () => {
+        const id = newId('step-');
+        getData().flowSteps.push({ id, title: 'Новый шаг', subtitle: '', color: 'purple', items: [] });
+        saveDraft(true);
+        render();
+        openPanel(`flowSteps.${id}`, 'flowStep');
+      });
+      flowSection.querySelector('.panel-body').appendChild(btn);
+    }
+
+    const rolesSection = document.getElementById('roles-section');
+    if (rolesSection && !rolesSection.querySelector('.edit-add-role')) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'edit-add-btn edit-add-role';
+      btn.textContent = '+ Зона роли';
+      btn.addEventListener('click', () => {
+        const id = newId('zone-');
+        getData().roleZones.push({
+          id, title: 'Новая зона', subtitle: '', color: 'purple', ownership: '', responsibilities: [], kpis: '',
+        });
+        saveDraft(true);
+        render();
+        openPanel(`roleZones.${id}`, 'roleZone');
+      });
+      rolesSection.querySelector('.panel-body').appendChild(btn);
+    }
+
+    const teamsSection = document.getElementById('teams-section');
+    if (teamsSection && !teamsSection.querySelector('.edit-add-team')) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'edit-add-btn edit-add-team';
+      btn.textContent = '+ Команда';
+      btn.addEventListener('click', () => {
+        const id = newId('team-');
+        getData().teams.push({ id, label: 'Новая команда', direction: 'lead' });
+        saveDraft(true);
+        render();
+        openPanel(`teams.${id}`, 'team');
+      });
+      teamsSection.querySelector('.panel-body').appendChild(btn);
+    }
+
+    document.querySelectorAll('[data-domain]').forEach((article) => {
+      if (article.querySelector('.edit-add-section')) return;
+      const domainId = article.dataset.domain;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'edit-add-btn edit-add-section';
+      btn.textContent = '+ Секция';
+      btn.addEventListener('click', () => {
+        const domain = getData().domains.find((d) => d.id === domainId);
+        domain.sections.push({ title: 'Новая секция', kind: 'tiles', items: [] });
+        saveDraft(true);
+        render();
+        const idx = domain.sections.length - 1;
+        openPanel(`domains.${domainId}.sections.${idx}`, 'section');
+      });
+      article.appendChild(btn);
+    });
   }
 
   function bindEditClicks() {
@@ -680,15 +844,28 @@
     document.body.classList.add('edit-mode');
     const draft = loadDraft();
     window.ARCH_DATA = draft || cloneData(window.ARCH_DATA);
+    ensureUiDefaults();
+    window.ArchEditPin = { pinnedZoneId: 'digital', freezeDynamic: true };
     buildEditToolbar();
     buildEditPanel();
     bindEditClicks();
-    render();
-    showToast('Режим редактирования включён');
+    window.ArchApp.setState({
+      focusMode: false,
+      hoveredDomain: null,
+      selectedCpo: null,
+      selectedRoleZone: null,
+      selectedTile: null,
+      selectedFlowStep: null,
+      highlightedLeader: null,
+    });
+    showToast('Динамика закреплена — можно редактировать зоны');
   }
 
   window.ArchEditor = {
-    afterRender: injectAddButtons,
+    afterRender() {
+      injectZonePin();
+      injectAddButtons();
+    },
   };
 
   init();

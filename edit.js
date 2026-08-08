@@ -317,7 +317,7 @@
     bar.className = 'edit-toolbar';
     bar.innerHTML = `
       <span class="edit-badge">WYSIWYG</span>
-      <span class="edit-hint">Кликните элемент для редактирования</span>
+      <span class="edit-hint">Кликните элемент · «Закрепить динамику» для редактирования sidebar</span>
       <div class="edit-toolbar-actions">
         <button type="button" class="btn" id="edit-save-draft">Сохранить черновик</button>
         <button type="button" class="btn" id="edit-export-json">Экспорт JSON</button>
@@ -371,7 +371,64 @@
     document.querySelectorAll('[data-edit-path].edit-selected').forEach((el) => el.classList.remove('edit-selected'));
   }
 
+  function pinZoneForEdit(path, type) {
+    if (type === 'roleZone' && /^roleZones\.[^.]+$/.test(path)) {
+      window.ArchEditPin.pinnedZoneId = path.split('.')[1];
+      window.ArchEditPin.freezeDynamic = true;
+    }
+  }
+
+  function injectZonePin() {
+    const sidebar = document.getElementById('sidebar-right');
+    if (!sidebar) return;
+
+    let pin = sidebar.querySelector('.edit-zone-pin');
+    if (!pin) {
+      pin = document.createElement('div');
+      pin.className = 'edit-zone-pin';
+      const inner = sidebar.querySelector('.panel-inner') || sidebar;
+      inner.insertBefore(pin, inner.firstChild);
+    }
+
+    const D = getData();
+    pin.innerHTML = `
+      <label class="edit-zone-label freeze-label">
+        <input type="checkbox" id="edit-freeze-dynamic" ${window.ArchEditPin.freezeDynamic ? 'checked' : ''}>
+        <span>Закрепить динамику</span>
+      </label>
+      <label class="edit-zone-label">
+        <span>Зона sidebar:</span>
+        <select id="edit-pinned-zone"${window.ArchEditPin.freezeDynamic ? '' : ' disabled'}>
+          ${D.roleZones.map((z) => `<option value="${z.id}"${window.ArchEditPin.pinnedZoneId === z.id ? ' selected' : ''}>${z.title}</option>`).join('')}
+        </select>
+      </label>
+    `;
+
+    pin.querySelector('#edit-freeze-dynamic').addEventListener('change', (e) => {
+      window.ArchEditPin.freezeDynamic = e.target.checked;
+      if (window.ArchEditPin.freezeDynamic) {
+        window.ArchApp.setState({
+          focusMode: false,
+          hoveredDomain: null,
+          selectedCpo: null,
+          selectedRoleZone: null,
+          selectedTile: null,
+          selectedFlowStep: null,
+          highlightedLeader: null,
+        });
+      } else {
+        render();
+      }
+    });
+
+    pin.querySelector('#edit-pinned-zone').addEventListener('change', (e) => {
+      window.ArchEditPin.pinnedZoneId = e.target.value;
+      render();
+    });
+  }
+
   function openPanel(path, type) {
+    pinZoneForEdit(path, type);
     selectedPath = path;
     selectedType = type;
     document.querySelectorAll('[data-edit-path].edit-selected').forEach((el) => el.classList.remove('edit-selected'));
@@ -767,7 +824,7 @@
 
   function bindEditClicks() {
     document.body.addEventListener('click', (e) => {
-      if (e.target.closest('.edit-section-actions, .edit-del-btn')) return;
+      if (e.target.closest('.edit-section-actions, .edit-del-btn, .edit-zone-pin')) return;
       const target = e.target.closest('[data-edit-path]');
       if (!target || target.closest('.edit-panel, .edit-toolbar')) return;
       e.preventDefault();
@@ -788,15 +845,27 @@
     const draft = loadDraft();
     window.ARCH_DATA = draft || cloneData(window.ARCH_DATA);
     ensureUiDefaults();
+    window.ArchEditPin = { pinnedZoneId: 'digital', freezeDynamic: true };
     buildEditToolbar();
     buildEditPanel();
     bindEditClicks();
-    render();
-    showToast('Режим редактирования включён');
+    window.ArchApp.setState({
+      focusMode: false,
+      hoveredDomain: null,
+      selectedCpo: null,
+      selectedRoleZone: null,
+      selectedTile: null,
+      selectedFlowStep: null,
+      highlightedLeader: null,
+    });
+    showToast('Динамика закреплена — можно редактировать зоны');
   }
 
   window.ArchEditor = {
-    afterRender: injectAddButtons,
+    afterRender() {
+      injectZonePin();
+      injectAddButtons();
+    },
   };
 
   init();
