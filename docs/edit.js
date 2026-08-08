@@ -119,7 +119,8 @@
   }
 
   function directionOptions() {
-    return getData().directions.map((d) => ({ value: d.id, label: d.label }));
+    const opts = getData().directions.map((d) => ({ value: d.id, label: d.label }));
+    return opts.length ? opts : [{ value: 'lead', label: 'Направление' }];
   }
 
   function entityIdFromPath(path) {
@@ -130,33 +131,32 @@
     return null;
   }
 
-  function canDelete(path, type) {
+  function domainOptions() {
     const D = getData();
-    if (type === 'tile') return true;
-    if (type === 'section') return true;
-    if (type === 'metric') return D.metrics.length > 1;
-    if (type === 'flowStep') return D.flowSteps.length > 1;
-    if (type === 'roleZone') return D.roleZones.length > 1;
-    if (type === 'raciRow') return D.raci.length > 1;
-    if (type === 'businessLeader') return D.businessLeaders.length > 1;
-    if (type === 'cpoRole') return true;
-    if (type === 'team') return true;
-    if (type === 'direction') {
-      const id = entityIdFromPath(path);
-      const hasTeams = id && D.teams.some((t) => t.direction === id);
-      return !hasTeams && D.directions.length > 1;
-    }
+    return D.domains.map((d) => ({ value: d.id, label: d.platformTitle || d.cpoTitle || d.id }));
+  }
+
+  const DELETABLE_TYPES = new Set([
+    'tile', 'section', 'metric', 'flowStep', 'roleZone', 'raciRow',
+    'businessLeader', 'cpoRole', 'team', 'direction', 'domain',
+  ]);
+
+  function resolveEditType(path, type) {
     if (type === 'text') {
-      if (/^businessLeaders\.[^.]+$/.test(path)) return D.businessLeaders.length > 1;
-      if (/^businessLeaders\.[^.]+\.label$/.test(path)) return D.businessLeaders.length > 1;
-      if (/^cpoRoles\.[^.]+\.label$/.test(path)) return true;
-      if (/^teams\.[^.]+\.label$/.test(path)) return true;
+      if (/^businessLeaders\.[^.]+\.label$/.test(path)) return 'businessLeader';
+      if (/^cpoRoles\.[^.]+\.label$/.test(path)) return 'cpoRole';
+      if (/^teams\.[^.]+\.label$/.test(path)) return 'team';
     }
-    return false;
+    return type;
+  }
+
+  function canDelete(path, type) {
+    return DELETABLE_TYPES.has(resolveEditType(path, type));
   }
 
   function deleteLabel(type) {
     const labels = {
+      domain: 'Удалить домен',
       section: 'Удалить секцию',
       tile: 'Удалить элемент',
       metric: 'Удалить метрику',
@@ -247,11 +247,159 @@
     if (parts[0] === 'directions') {
       const id = entityIdFromPath(path);
       if (!id) return false;
+      const fallback = D.directions.find((d) => d.id !== id)?.id;
+      D.teams.forEach((t) => {
+        if (t.direction === id && fallback) t.direction = fallback;
+      });
       D.directions = D.directions.filter((item) => item.id !== id);
       return true;
     }
 
+    if (parts[0] === 'domains' && parts.length === 2) {
+      const id = entityIdFromPath(path);
+      if (!id) return false;
+      D.domains = D.domains.filter((item) => item.id !== id);
+      if (D.domainToZone) delete D.domainToZone[id];
+      D.cpoRoles.forEach((c) => {
+        if (c.domain === id && D.domains[0]) c.domain = D.domains[0].id;
+      });
+      return true;
+    }
+
     return false;
+  }
+
+  function addDomain() {
+    const D = getData();
+    const id = newId('domain-');
+    D.domains.push({
+      id, color: 'green', cpoTitle: 'NEW CPO', cpoSubtitle: '', platformTitle: 'NEW PLATFORM', sections: [],
+    });
+    if (!D.domainToZone) D.domainToZone = {};
+    D.domainToZone[id] = id;
+    saveDraft(true);
+    render();
+    openPanel(`domains.${id}`, 'domain');
+  }
+
+  function addSection(domainId) {
+    const domain = getData().domains.find((d) => d.id === domainId);
+    if (!domain) return;
+    domain.sections.push({ title: 'Новая секция', kind: 'tiles', items: [] });
+    saveDraft(true);
+    render();
+    openPanel(`domains.${domainId}.sections.${domain.sections.length - 1}`, 'section');
+  }
+
+  function addTile(domainId, sectionIdx) {
+    const section = getData().domains.find((d) => d.id === domainId)?.sections[sectionIdx];
+    if (!section) return;
+    const id = newId('item-');
+    section.items.push({ id, label: 'Новый элемент', hint: '' });
+    saveDraft(true);
+    render();
+    openPanel(`domains.${domainId}.sections.${sectionIdx}.items.${id}`, 'tile');
+  }
+
+  function addIntegration() {
+    const id = newId('i');
+    getData().integration.push({ id, label: 'Новая интеграция', hint: '' });
+    saveDraft(true);
+    render();
+    openPanel(`integration.${id}`, 'tile');
+  }
+
+  function addRaciRow() {
+    getData().raci.push({ area: 'Новая зона', telecom: 'C', cx: 'C', vas: 'C', platform: 'R', product: 'I' });
+    saveDraft(true);
+    render();
+    openPanel(`raci.${getData().raci.length - 1}`, 'raciRow');
+  }
+
+  function addLeader() {
+    const id = newId('leader-');
+    getData().businessLeaders.push({ id, label: 'Новый лидер' });
+    saveDraft(true);
+    render();
+    openPanel(`businessLeaders.${id}.label`, 'businessLeader');
+  }
+
+  function addCpoRole() {
+    const id = newId('cpo-');
+    const domain = getData().domains[0]?.id || 'telecom';
+    getData().cpoRoles.push({ id, label: 'Новый CPO', domain, teamIds: [] });
+    saveDraft(true);
+    render();
+    openPanel(`cpoRoles.${id}`, 'cpoRole');
+  }
+
+  function addMetric() {
+    getData().metrics.push({ label: 'Новая метрика', description: '' });
+    saveDraft(true);
+    render();
+    openPanel(`metrics.${getData().metrics.length - 1}`, 'metric');
+  }
+
+  function addFlowStep() {
+    const id = newId('step-');
+    getData().flowSteps.push({ id, title: 'Новый шаг', subtitle: '', color: 'purple', items: [] });
+    saveDraft(true);
+    render();
+    openPanel(`flowSteps.${id}`, 'flowStep');
+  }
+
+  function addRoleZone() {
+    const id = newId('zone-');
+    getData().roleZones.push({
+      id, title: 'Новая зона', subtitle: '', color: 'purple', ownership: '', responsibilities: [], kpis: '',
+    });
+    saveDraft(true);
+    render();
+    openPanel(`roleZones.${id}`, 'roleZone');
+  }
+
+  function addTeam() {
+    const id = newId('team-');
+    const direction = getData().directions[0]?.id || 'lead';
+    getData().teams.push({ id, label: 'Новая команда', direction });
+    saveDraft(true);
+    render();
+    openPanel(`teams.${id}`, 'team');
+  }
+
+  function addDirection() {
+    const id = newId('dir-');
+    getData().directions.push({ id, label: 'Новое направление' });
+    saveDraft(true);
+    render();
+    openPanel(`directions.${id}`, 'direction');
+  }
+
+  function runAddAction(action) {
+    const map = {
+      domain: addDomain,
+      section: () => {
+        const first = getData().domains[0];
+        if (first) addSection(first.id);
+        else { addDomain(); }
+      },
+      tile: () => {
+        const first = getData().domains[0];
+        if (first?.sections[0]) addTile(first.id, 0);
+        else if (first) addSection(first.id);
+        else addDomain();
+      },
+      integration: addIntegration,
+      raci: addRaciRow,
+      leader: addLeader,
+      cpo: addCpoRole,
+      metric: addMetric,
+      flow: addFlowStep,
+      roleZone: addRoleZone,
+      team: addTeam,
+      direction: addDirection,
+    };
+    if (map[action]) map[action]();
   }
 
   function newId(prefix) {
@@ -326,6 +474,21 @@
           Импорт JSON
           <input type="file" id="edit-import-json" accept=".json,application/json" hidden>
         </label>
+        <select id="edit-add-menu" class="edit-add-menu" title="Добавить элемент">
+          <option value="">+ Добавить...</option>
+          <option value="domain">Домен</option>
+          <option value="section">Секция</option>
+          <option value="tile">Плитка</option>
+          <option value="integration">Интеграция</option>
+          <option value="leader">Бизнес-лидер</option>
+          <option value="cpo">CPO</option>
+          <option value="metric">Метрика</option>
+          <option value="direction">Направление</option>
+          <option value="team">Команда</option>
+          <option value="flow">Шаг flow</option>
+          <option value="roleZone">Зона роли</option>
+          <option value="raci">Строка RACI</option>
+        </select>
         <button type="button" class="btn ghost" id="edit-reset">Сбросить</button>
         <a class="btn ghost" href="${location.pathname}">Просмотр</a>
       </div>
@@ -339,6 +502,12 @@
     bar.querySelector('#edit-import-json').addEventListener('change', (e) => {
       if (e.target.files[0]) importJson(e.target.files[0]);
       e.target.value = '';
+    });
+    bar.querySelector('#edit-add-menu').addEventListener('change', (e) => {
+      if (e.target.value) {
+        runAddAction(e.target.value);
+        e.target.value = '';
+      }
     });
   }
 
@@ -471,9 +640,10 @@
 
   function updateDeleteButton(path, type) {
     const deleteBtn = document.getElementById('edit-delete');
+    const resolved = resolveEditType(path, type);
     if (canDelete(path, type)) {
       deleteBtn.style.display = 'inline-block';
-      deleteBtn.textContent = deleteLabel(type);
+      deleteBtn.textContent = deleteLabel(resolved);
     } else {
       deleteBtn.style.display = 'none';
     }
@@ -532,7 +702,7 @@
       html += fixField('Лидер', 'ef-label', leader?.label || '');
     } else if (type === 'cpoRole') {
       html += fixField('CPO', 'ef-label', val?.label || '');
-      html += fixSelect('Домен', 'ef-domain', val?.domain || 'telecom', DOMAIN_OPTIONS);
+      html += fixSelect('Домен', 'ef-domain', val?.domain || 'telecom', domainOptions().length ? domainOptions() : DOMAIN_OPTIONS);
       html += fixField('ID команд (через запятую)', 'ef-teamIds', (val?.teamIds || []).join(', '));
     } else if (type === 'team') {
       html += fixField('Команда', 'ef-label', val?.label || '');
@@ -627,13 +797,14 @@
 
   function deleteCurrent() {
     if (!selectedPath || !selectedType) return;
+    const resolved = resolveEditType(selectedPath, selectedType);
     if (!canDelete(selectedPath, selectedType)) {
       showToast('Этот блок нельзя удалить');
       return;
     }
-    const label = deleteLabel(selectedType).toLowerCase();
+    const label = deleteLabel(resolved).toLowerCase();
     if (!confirm(`${label.charAt(0).toUpperCase()}${label.slice(1)}?`)) return;
-    if (!deleteByPath(selectedPath, selectedType)) {
+    if (!deleteByPath(selectedPath, resolved)) {
       showToast('Ошибка: не удалось удалить');
       return;
     }
@@ -672,12 +843,7 @@
       btn.textContent = '+ Добавить элемент';
       btn.addEventListener('click', () => {
         const [domainId, sectionIdx] = block.dataset.section.split('.');
-        const section = getData().domains.find((d) => d.id === domainId).sections[Number(sectionIdx)];
-        const id = newId('item-');
-        section.items.push({ id, label: 'Новый элемент', hint: '' });
-        saveDraft();
-        render();
-        openPanel(`domains.${domainId}.sections.${sectionIdx}.items.${id}`, 'tile');
+        addTile(domainId, Number(sectionIdx));
       });
       block.appendChild(btn);
     });
@@ -688,13 +854,7 @@
       btn.type = 'button';
       btn.className = 'edit-add-btn';
       btn.textContent = '+ Добавить интеграцию';
-      btn.addEventListener('click', () => {
-        const id = newId('i');
-        getData().integration.push({ id, label: 'Новая интеграция', hint: '' });
-        saveDraft();
-        render();
-        openPanel(`integration.${id}`, 'tile');
-      });
+      btn.addEventListener('click', addIntegration);
       intSection.querySelector('.panel-body').appendChild(btn);
     }
 
@@ -704,12 +864,7 @@
       btn.type = 'button';
       btn.className = 'edit-add-btn edit-add-raci';
       btn.textContent = '+ Добавить строку RACI';
-      btn.addEventListener('click', () => {
-        getData().raci.push({ area: 'Новая зона', telecom: 'C', cx: 'C', vas: 'C', platform: 'R', product: 'I' });
-        saveDraft(true);
-        render();
-        openPanel(`raci.${getData().raci.length - 1}`, 'raciRow');
-      });
+      btn.addEventListener('click', addRaciRow);
       raciSection.querySelector('.panel-body').prepend(btn);
     }
 
@@ -721,20 +876,8 @@
         <button type="button" class="edit-add-btn edit-add-leader">+ Лидер</button>
         <button type="button" class="edit-add-btn edit-add-cpo">+ CPO</button>
       `;
-      wrap.querySelector('.edit-add-leader').addEventListener('click', () => {
-        const id = newId('leader-');
-        getData().businessLeaders.push({ id, label: 'Новый лидер' });
-        saveDraft(true);
-        render();
-        openPanel(`businessLeaders.${id}.label`, 'businessLeader');
-      });
-      wrap.querySelector('.edit-add-cpo').addEventListener('click', () => {
-        const id = newId('cpo-');
-        getData().cpoRoles.push({ id, label: 'Новый CPO', domain: 'telecom', teamIds: [] });
-        saveDraft(true);
-        render();
-        openPanel(`cpoRoles.${id}`, 'cpoRole');
-      });
+      wrap.querySelector('.edit-add-leader').addEventListener('click', addLeader);
+      wrap.querySelector('.edit-add-cpo').addEventListener('click', addCpoRole);
       businessSection.querySelector('.panel-body').appendChild(wrap);
     }
 
@@ -744,12 +887,7 @@
       btn.type = 'button';
       btn.className = 'edit-add-btn edit-add-metric';
       btn.textContent = '+ Метрика';
-      btn.addEventListener('click', () => {
-        getData().metrics.push({ label: 'Новая метрика', description: '' });
-        saveDraft(true);
-        render();
-        openPanel(`metrics.${getData().metrics.length - 1}`, 'metric');
-      });
+      btn.addEventListener('click', addMetric);
       metricsPanel.appendChild(btn);
     }
 
@@ -759,13 +897,7 @@
       btn.type = 'button';
       btn.className = 'edit-add-btn edit-add-flow';
       btn.textContent = '+ Шаг flow';
-      btn.addEventListener('click', () => {
-        const id = newId('step-');
-        getData().flowSteps.push({ id, title: 'Новый шаг', subtitle: '', color: 'purple', items: [] });
-        saveDraft(true);
-        render();
-        openPanel(`flowSteps.${id}`, 'flowStep');
-      });
+      btn.addEventListener('click', addFlowStep);
       flowSection.querySelector('.panel-body').appendChild(btn);
     }
 
@@ -775,32 +907,31 @@
       btn.type = 'button';
       btn.className = 'edit-add-btn edit-add-role';
       btn.textContent = '+ Зона роли';
-      btn.addEventListener('click', () => {
-        const id = newId('zone-');
-        getData().roleZones.push({
-          id, title: 'Новая зона', subtitle: '', color: 'purple', ownership: '', responsibilities: [], kpis: '',
-        });
-        saveDraft(true);
-        render();
-        openPanel(`roleZones.${id}`, 'roleZone');
-      });
+      btn.addEventListener('click', addRoleZone);
       rolesSection.querySelector('.panel-body').appendChild(btn);
     }
 
     const teamsSection = document.getElementById('teams-section');
-    if (teamsSection && !teamsSection.querySelector('.edit-add-team')) {
+    if (teamsSection && !teamsSection.querySelector('.edit-block-actions')) {
+      const wrap = document.createElement('div');
+      wrap.className = 'edit-block-actions';
+      wrap.innerHTML = `
+        <button type="button" class="edit-add-btn edit-add-direction">+ Направление</button>
+        <button type="button" class="edit-add-btn edit-add-team">+ Команда</button>
+      `;
+      wrap.querySelector('.edit-add-direction').addEventListener('click', addDirection);
+      wrap.querySelector('.edit-add-team').addEventListener('click', addTeam);
+      teamsSection.querySelector('.panel-body').appendChild(wrap);
+    }
+
+    const domainsGrid = document.getElementById('domains-grid');
+    if (domainsGrid && !domainsGrid.querySelector('.edit-add-domain')) {
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = 'edit-add-btn edit-add-team';
-      btn.textContent = '+ Команда';
-      btn.addEventListener('click', () => {
-        const id = newId('team-');
-        getData().teams.push({ id, label: 'Новая команда', direction: 'lead' });
-        saveDraft(true);
-        render();
-        openPanel(`teams.${id}`, 'team');
-      });
-      teamsSection.querySelector('.panel-body').appendChild(btn);
+      btn.className = 'edit-add-btn edit-add-domain';
+      btn.textContent = '+ Домен';
+      btn.addEventListener('click', addDomain);
+      domainsGrid.parentElement.appendChild(btn);
     }
 
     document.querySelectorAll('[data-domain]').forEach((article) => {
@@ -810,32 +941,45 @@
       btn.type = 'button';
       btn.className = 'edit-add-btn edit-add-section';
       btn.textContent = '+ Секция';
-      btn.addEventListener('click', () => {
-        const domain = getData().domains.find((d) => d.id === domainId);
-        domain.sections.push({ title: 'Новая секция', kind: 'tiles', items: [] });
-        saveDraft(true);
-        render();
-        const idx = domain.sections.length - 1;
-        openPanel(`domains.${domainId}.sections.${idx}`, 'section');
-      });
+      btn.addEventListener('click', () => addSection(domainId));
       article.appendChild(btn);
+    });
+  }
+
+  function injectQuickDelete() {
+    document.querySelectorAll('[data-edit-path]').forEach((el) => {
+      if (el.closest('.edit-panel, .edit-toolbar, .edit-zone-pin, .edit-section-actions')) return;
+      if (el.querySelector(':scope > .edit-quick-del')) return;
+      const path = el.dataset.editPath;
+      const type = resolveEditType(path, el.dataset.editType);
+      if (!canDelete(path, el.dataset.editType)) return;
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'edit-quick-del';
+      btn.title = deleteLabel(type);
+      btn.textContent = '×';
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        selectedPath = path;
+        selectedType = el.dataset.editType;
+        deleteCurrent();
+      });
+      if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
+      el.appendChild(btn);
     });
   }
 
   function bindEditClicks() {
     document.body.addEventListener('click', (e) => {
-      if (e.target.closest('.edit-section-actions, .edit-del-btn')) return;
+      if (e.target.closest('.edit-section-actions, .edit-del-btn, .edit-zone-pin, .edit-quick-del')) return;
       const target = e.target.closest('[data-edit-path]');
       if (!target || target.closest('.edit-panel, .edit-toolbar')) return;
       e.preventDefault();
       e.stopPropagation();
-      let type = target.dataset.editType;
-      let path = target.dataset.editPath;
-      if (type === 'text') {
-        if (/^businessLeaders\.[^.]+\.label$/.test(path)) type = 'businessLeader';
-        else if (/^cpoRoles\.[^.]+\.label$/.test(path)) type = 'cpoRole';
-        else if (/^teams\.[^.]+\.label$/.test(path)) type = 'team';
-      }
+      const path = target.dataset.editPath;
+      const type = resolveEditType(path, target.dataset.editType);
       openPanel(path, type);
     });
   }
@@ -865,6 +1009,7 @@
     afterRender() {
       injectZonePin();
       injectAddButtons();
+      injectQuickDelete();
     },
   };
 
