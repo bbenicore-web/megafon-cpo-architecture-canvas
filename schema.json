@@ -809,6 +809,7 @@
       "Head VAS",
       "Platform",
       "Product (P&L)"
-    ]
+    ],
+    "hiddenBlocks": []
   }
 }

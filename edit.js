@@ -87,6 +87,53 @@
     { value: 'vas', label: 'VAS' },
   ];
 
+  const PAGE_BLOCKS = {
+    business: { label: 'Бизнес-заказчики', titlePath: 'ui.panels.business' },
+    digitalCpo: { label: 'CPO цифровой продукт', titlePath: 'digitalCpoTitle' },
+    platformWhy: { label: 'Зачем платформа', titlePath: 'ui.panels.platformWhy' },
+    platformMetrics: { label: 'Связь с бизнесом', titlePath: 'ui.panels.platformMetrics' },
+    domains: { label: 'Платформенные домены' },
+    sidebarRight: { label: 'Sidebar «Зона»' },
+    integration: { label: 'Интеграция и взаимодействие', titlePath: 'ui.panels.integration' },
+    teams: { label: 'Команда платформы', titlePath: 'ui.panels.teams' },
+    flow: { label: 'Модель взаимодействия', titlePath: 'ui.panels.flow' },
+    roles: { label: 'Роли и зоны ответственности', titlePath: 'ui.panels.roles' },
+    raci: { label: 'RACI', titlePath: 'ui.panels.raci' },
+  };
+
+  function blockIdFromPath(path) {
+    const m = /^ui\.blocks\.([^.]+)$/.exec(path);
+    return m ? m[1] : null;
+  }
+
+  function getBlockLabel(blockId) {
+    const def = PAGE_BLOCKS[blockId];
+    if (!def) return blockId;
+    if (def.titlePath) {
+      const title = getByPath(def.titlePath);
+      if (title) return title;
+    }
+    return def.label;
+  }
+
+  function isBlockVisible(blockId) {
+    const hidden = getData().ui?.hiddenBlocks;
+    return !hidden || !hidden.includes(blockId);
+  }
+
+  function hideBlock(blockId) {
+    const D = getData();
+    if (!D.ui) D.ui = {};
+    if (!D.ui.hiddenBlocks) D.ui.hiddenBlocks = [];
+    if (!D.ui.hiddenBlocks.includes(blockId)) D.ui.hiddenBlocks.push(blockId);
+  }
+
+  function restoreBlock(blockId) {
+    const D = getData();
+    if (!D.ui?.hiddenBlocks) return;
+    D.ui.hiddenBlocks = D.ui.hiddenBlocks.filter((id) => id !== blockId);
+  }
+
   function ensureUiDefaults() {
     const D = getData();
     if (D.ui) return;
@@ -116,6 +163,7 @@
       raciLegend: 'R — исполняет · A — отвечает · C — консультирует · I — информируется',
       raciHeaders: ['Зона', 'Head Telecom', 'Head CX', 'Head VAS', 'Platform', 'Product (P&L)'],
     };
+    if (!D.ui.hiddenBlocks) D.ui.hiddenBlocks = [];
   }
 
   function directionOptions() {
@@ -131,6 +179,7 @@
   }
 
   function canDelete(path, type) {
+    if (type === 'block') return blockIdFromPath(path) != null;
     const D = getData();
     if (type === 'tile') return true;
     if (type === 'section') return true;
@@ -157,6 +206,7 @@
 
   function deleteLabel(type) {
     const labels = {
+      block: 'Скрыть блок',
       section: 'Удалить секцию',
       tile: 'Удалить элемент',
       metric: 'Удалить метрику',
@@ -174,6 +224,13 @@
   function deleteByPath(path, type) {
     const parts = path.split('.');
     const D = getData();
+
+    if (type === 'block' || (parts[0] === 'ui' && parts[1] === 'blocks' && parts.length === 3)) {
+      const blockId = parts[2];
+      if (!PAGE_BLOCKS[blockId]) return false;
+      hideBlock(blockId);
+      return true;
+    }
 
     if (parts[parts.length - 2] === 'items') {
       const id = parts[parts.length - 1];
@@ -326,6 +383,9 @@
           Импорт JSON
           <input type="file" id="edit-import-json" accept=".json,application/json" hidden>
         </label>
+        <select id="edit-restore-blocks" class="edit-add-menu" title="Восстановить скрытый блок">
+          <option value="">↩ Скрытые блоки...</option>
+        </select>
         <button type="button" class="btn ghost" id="edit-reset">Сбросить</button>
         <a class="btn ghost" href="${location.pathname}">Просмотр</a>
       </div>
@@ -340,6 +400,26 @@
       if (e.target.files[0]) importJson(e.target.files[0]);
       e.target.value = '';
     });
+    updateRestoreMenu(bar.querySelector('#edit-restore-blocks'));
+    bar.querySelector('#edit-restore-blocks').addEventListener('change', (e) => {
+      if (e.target.value) {
+        restoreBlock(e.target.value);
+        saveDraft(true);
+        closePanel();
+        render();
+        updateRestoreMenu(e.target);
+        showToast(`Блок «${getBlockLabel(e.target.value)}» восстановлен`);
+        e.target.value = '';
+      }
+    });
+  }
+
+  function updateRestoreMenu(select) {
+    if (!select) return;
+    const hidden = getData().ui?.hiddenBlocks || [];
+    select.innerHTML = `<option value="">${hidden.length ? `↩ Скрытые блоки (${hidden.length})...` : '↩ Нет скрытых блоков'}</option>`
+      + hidden.map((id) => `<option value="${escapeAttr(id)}">${escapeHtml(getBlockLabel(id))}</option>`).join('');
+    select.disabled = hidden.length === 0;
   }
 
   function buildEditPanel() {
@@ -484,7 +564,16 @@
     let html = `<p class="edit-path">${path}</p>`;
     const val = getByPath(path);
 
-    if (type === 'text') {
+    if (type === 'block') {
+      const blockId = blockIdFromPath(path);
+      const def = PAGE_BLOCKS[blockId];
+      html += `<p class="edit-meta">Крупный блок схемы. При удалении блок скрывается со страницы, данные сохраняются в экспорте.</p>`;
+      if (def?.titlePath) {
+        html += fixField('Заголовок блока', 'ef-blockTitle', getByPath(def.titlePath) || def.label);
+      } else {
+        html += `<p class="edit-meta"><strong>${escapeHtml(def?.label || blockId)}</strong></p>`;
+      }
+    } else if (type === 'text') {
       html += fixField('Текст', 'ef-label', val);
     } else if (type === 'domain') {
       html += fixField('CPO заголовок', 'ef-cpoTitle', val.cpoTitle);
@@ -554,13 +643,22 @@
     const type = selectedType;
     const val = getByPath(selectedPath);
 
-    if (val == null && type !== 'text') {
+    if (val == null && type !== 'text' && type !== 'block') {
       showToast('Ошибка: элемент не найден');
       return;
     }
 
     try {
-      if (type === 'text') {
+      if (type === 'block') {
+        const blockId = blockIdFromPath(selectedPath);
+        const def = PAGE_BLOCKS[blockId];
+        if (def?.titlePath) {
+          if (!setByPath(def.titlePath, readField('ef-blockTitle'))) {
+            showToast('Ошибка: не удалось сохранить');
+            return;
+          }
+        }
+      } else if (type === 'text') {
         if (!setByPath(selectedPath, readField('ef-label'))) {
           showToast('Ошибка: не удалось сохранить');
           return;
@@ -632,7 +730,11 @@
       return;
     }
     const label = deleteLabel(selectedType).toLowerCase();
-    if (!confirm(`${label.charAt(0).toUpperCase()}${label.slice(1)}?`)) return;
+    const blockId = blockIdFromPath(selectedPath);
+    const confirmMsg = blockId
+      ? `${label.charAt(0).toUpperCase()}${label.slice(1)} «${getBlockLabel(blockId)}»? Данные сохранятся в экспорте.`
+      : `${label.charAt(0).toUpperCase()}${label.slice(1)}?`;
+    if (!confirm(confirmMsg)) return;
     if (!deleteByPath(selectedPath, selectedType)) {
       showToast('Ошибка: не удалось удалить');
       return;
@@ -640,7 +742,68 @@
     saveDraft(true);
     closePanel();
     render();
-    showToast('Блок удалён');
+    updateRestoreMenu(document.getElementById('edit-restore-blocks'));
+    showToast(blockId ? 'Блок скрыт' : 'Блок удалён');
+  }
+
+  function injectBlockActions() {
+    Object.keys(PAGE_BLOCKS).forEach((blockId) => {
+      if (!isBlockVisible(blockId)) return;
+      const el = document.querySelector(`[data-edit-path="ui.blocks.${blockId}"]`);
+      if (!el || el.querySelector('.edit-block-del')) return;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'edit-block-del edit-del-btn';
+      btn.textContent = '× Блок';
+      btn.title = `Скрыть блок «${getBlockLabel(blockId)}»`;
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        selectedPath = `ui.blocks.${blockId}`;
+        selectedType = 'block';
+        deleteCurrent();
+      });
+      const title = el.querySelector('.panel-title, .collapsible-title');
+      if (title) {
+        title.classList.add('edit-block-title-wrap');
+        title.appendChild(btn);
+      } else if (el.classList.contains('banner')) {
+        el.classList.add('edit-block-banner');
+        el.insertBefore(btn, el.firstChild);
+      } else if (el.id === 'domains-section') {
+        const head = document.createElement('div');
+        head.className = 'edit-block-head';
+        head.innerHTML = `<span>Платформенные домены</span>`;
+        head.appendChild(btn);
+        el.insertBefore(head, el.firstChild);
+      }
+    });
+
+    injectHiddenBlockStrips();
+  }
+
+  function injectHiddenBlockStrips() {
+    document.querySelectorAll('.edit-hidden-block-strip').forEach((el) => el.remove());
+    const hidden = getData().ui?.hiddenBlocks || [];
+    const container = document.querySelector('.container');
+    if (!container || !hidden.length) return;
+
+    hidden.forEach((blockId) => {
+      const strip = document.createElement('div');
+      strip.className = 'edit-hidden-block-strip panel';
+      strip.innerHTML = `
+        <span>Скрытый блок: <strong>${escapeHtml(getBlockLabel(blockId))}</strong></span>
+        <button type="button" class="edit-add-btn">↩ Восстановить</button>
+      `;
+      strip.querySelector('button').addEventListener('click', () => {
+        restoreBlock(blockId);
+        saveDraft(true);
+        render();
+        updateRestoreMenu(document.getElementById('edit-restore-blocks'));
+        showToast(`Блок «${getBlockLabel(blockId)}» восстановлен`);
+      });
+      container.appendChild(strip);
+    });
   }
 
   function injectSectionActions() {
@@ -824,13 +987,17 @@
 
   function bindEditClicks() {
     document.body.addEventListener('click', (e) => {
-      if (e.target.closest('.edit-section-actions, .edit-del-btn, .edit-zone-pin')) return;
+      if (e.target.closest('.edit-section-actions, .edit-del-btn, .edit-block-del, .edit-zone-pin, .edit-hidden-block-strip')) return;
       const target = e.target.closest('[data-edit-path]');
       if (!target || target.closest('.edit-panel, .edit-toolbar')) return;
       e.preventDefault();
       e.stopPropagation();
       let type = target.dataset.editType;
       let path = target.dataset.editPath;
+      if (type === 'block') {
+        openPanel(path, 'block');
+        return;
+      }
       if (type === 'text') {
         if (/^businessLeaders\.[^.]+\.label$/.test(path)) type = 'businessLeader';
         else if (/^cpoRoles\.[^.]+\.label$/.test(path)) type = 'cpoRole';
@@ -865,6 +1032,7 @@
     afterRender() {
       injectZonePin();
       injectAddButtons();
+      injectBlockActions();
     },
   };
 
