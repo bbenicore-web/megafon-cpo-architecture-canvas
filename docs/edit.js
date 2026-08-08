@@ -171,6 +171,10 @@
     return getData().businessLeaders.map((l) => ({ value: l.id, label: l.label }));
   }
 
+  function directionOptions() {
+    return getData().directions.map((d) => ({ value: d.id, label: d.label }));
+  }
+
   function entityIdFromPath(path) {
     const parts = path.split('.');
     if (parts.length >= 2 && /^(businessLeaders|cpoRoles|teams|flowSteps|roleZones|integration|directions|domains)$/.test(parts[0])) {
@@ -982,10 +986,10 @@
       appendPanelAction(teamsSection, 'teams', (body) => body.appendChild(btn));
     }
 
-    document.querySelectorAll('[data-domain]').forEach((article) => {
+    document.querySelectorAll('.domain-footer[data-domain]').forEach((footer) => {
       if (!isBlockVisible('domains')) return;
-      if (article.querySelector('.edit-add-section')) return;
-      const domainId = article.dataset.domain;
+      if (footer.querySelector('.edit-add-section')) return;
+      const domainId = footer.dataset.domain;
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'edit-add-btn edit-add-section';
@@ -998,7 +1002,7 @@
         const idx = domain.sections.length - 1;
         openPanel(`domains.${domainId}.sections.${idx}`, 'section');
       });
-      article.appendChild(btn);
+      footer.appendChild(btn);
     });
   }
 
