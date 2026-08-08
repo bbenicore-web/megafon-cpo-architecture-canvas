@@ -288,14 +288,55 @@
       "platformTitle": "ТЕЛЕКОМ ПЛАТФОРМА",
       "sections": [
         {
-          "title": "ДОМЕННЫЕ CAPABILITIES · Витрины и навигация",
+          "title": "СКВОЗНЫЕ CAPABILITIES · Платформенная интеграция",
           "kind": "tiles",
           "items": [
             {
-              "id": "t1",
+              "id": "tx1",
               "label": "Сквозные элементы",
               "hint": "Единая навигация телеком-разделов"
             },
+            {
+              "id": "tx2",
+              "label": "Unified Auth",
+              "hint": "Единая авторизация (delivery: CX)"
+            },
+            {
+              "id": "tx3",
+              "label": "Unified Notifications",
+              "hint": "Единый центр уведомлений (delivery: CX)"
+            },
+            {
+              "id": "tx4",
+              "label": "Unified Billing",
+              "hint": "Единый биллинг телеком-сценариев"
+            },
+            {
+              "id": "tx5",
+              "label": "Cross-analytics",
+              "hint": "Сквозная аналитика воронок"
+            },
+            {
+              "id": "tx6",
+              "label": "Data Exchange",
+              "hint": "Обмен данными между платформами"
+            },
+            {
+              "id": "tx7",
+              "label": "Unified Standards / API",
+              "hint": "Общие API и стандарты"
+            },
+            {
+              "id": "tx8",
+              "label": "Journey Sync",
+              "hint": "Синхронизация клиентских путей"
+            }
+          ]
+        },
+        {
+          "title": "ДОМЕННЫЕ CAPABILITIES · Витрины и навигация",
+          "kind": "tiles",
+          "items": [
             {
               "id": "t2",
               "label": "Каталоги тарифов",
