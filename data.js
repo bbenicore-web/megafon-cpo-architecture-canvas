@@ -288,7 +288,7 @@ window.ARCH_DATA = {
       "platformTitle": "ТЕЛЕКОМ ПЛАТФОРМА",
       "sections": [
         {
-          "title": "ДОМЕННЫЕ CAPABILITIES · Витрины и навигация",
+          "title": "СКВОЗНЫЕ CAPABILITIES",
           "kind": "tiles",
           "items": [
             {
@@ -296,6 +296,47 @@ window.ARCH_DATA = {
               "label": "Сквозные элементы",
               "hint": "Единая навигация телеком-разделов"
             },
+            {
+              "id": "tx2",
+              "label": "Unified Auth",
+              "hint": "Единая авторизация (delivery: CX)"
+            },
+            {
+              "id": "tx3",
+              "label": "Unified Notifications",
+              "hint": "Единый центр уведомлений (delivery: CX)"
+            },
+            {
+              "id": "tx4",
+              "label": "Unified Billing",
+              "hint": "Единый биллинг телеком-сценариев"
+            },
+            {
+              "id": "tx5",
+              "label": "Cross-analytics",
+              "hint": "Сквозная аналитика воронок"
+            },
+            {
+              "id": "tx6",
+              "label": "Data Exchange",
+              "hint": "Обмен данными между платформами"
+            },
+            {
+              "id": "tx7",
+              "label": "Unified Standards / API",
+              "hint": "Общие API и стандарты"
+            },
+            {
+              "id": "tx8",
+              "label": "Journey Sync",
+              "hint": "Синхронизация клиентских путей"
+            }
+          ]
+        },
+        {
+          "title": "ДОМЕННЫЕ CAPABILITIES",
+          "kind": "tiles",
+          "items": [
             {
               "id": "t2",
               "label": "Каталоги тарифов",
@@ -320,11 +361,56 @@ window.ARCH_DATA = {
               "id": "t6",
               "label": "Корзина телеком",
               "hint": "Оформление телеком-заказов"
+            },
+            {
+              "id": "tt1",
+              "label": "Услуги подкл/отключ.",
+              "hint": "Сервис платформы Telecom"
+            },
+            {
+              "id": "tt2",
+              "label": "Импортер",
+              "hint": "Сервис платформы Telecom"
+            },
+            {
+              "id": "tt3",
+              "label": "Домашний инет",
+              "hint": "Сервис платформы Telecom"
+            },
+            {
+              "id": "tt4",
+              "label": "Проверка адреса - мск (dadata)",
+              "hint": "Сервис платформы Telecom"
+            },
+            {
+              "id": "tt5",
+              "label": "Проверка баланса",
+              "hint": "Сервис платформы Telecom"
+            },
+            {
+              "id": "tt6",
+              "label": "Мои номера",
+              "hint": "Сервис платформы Telecom"
+            },
+            {
+              "id": "tt7",
+              "label": "Тарифы",
+              "hint": "Сервис платформы Telecom"
+            },
+            {
+              "id": "tt8",
+              "label": "Клоны",
+              "hint": "Сервис платформы Telecom"
+            },
+            {
+              "id": "tt9",
+              "label": "Семья",
+              "hint": "Сервис платформы Telecom"
             }
           ]
         },
         {
-          "title": "ПРОДУКТОВЫЕ CAPABILITIES · Телеком-сценарии",
+          "title": "ПРОДУКТОВЫЕ CAPABILITIES",
           "kind": "tiles",
           "items": [
             {
@@ -398,48 +484,6 @@ window.ARCH_DATA = {
               "hint": "Клонирование номера и SIM"
             }
           ]
-        },
-        {
-          "title": "ДОМЕННЫЕ CAPABILITIES · Сервисы платформы",
-          "kind": "text",
-          "items": [
-            {
-              "id": "tt1",
-              "label": "Услуги подкл/отключ."
-            },
-            {
-              "id": "tt2",
-              "label": "Импортер"
-            },
-            {
-              "id": "tt3",
-              "label": "Домашний инет"
-            },
-            {
-              "id": "tt4",
-              "label": "Проверка адреса - мск (dadata)"
-            },
-            {
-              "id": "tt5",
-              "label": "Проверка баланса"
-            },
-            {
-              "id": "tt6",
-              "label": "Мои номера"
-            },
-            {
-              "id": "tt7",
-              "label": "Тарифы"
-            },
-            {
-              "id": "tt8",
-              "label": "Клоны"
-            },
-            {
-              "id": "tt9",
-              "label": "Семья"
-            }
-          ]
         }
       ]
     },
@@ -451,7 +495,7 @@ window.ARCH_DATA = {
       "platformTitle": "CX ПЛАТФОРМА",
       "sections": [
         {
-          "title": "СКВОЗНЫЕ CAPABILITIES · Опыт и platform services",
+          "title": "СКВОЗНЫЕ CAPABILITIES",
           "kind": "tiles",
           "items": [
             {
@@ -500,14 +544,50 @@ window.ARCH_DATA = {
               "hint": "Центр уведомлений"
             },
             {
-              "id": "c12",
-              "label": "Communications",
-              "hint": "Коммуникации с клиентом"
-            },
-            {
               "id": "c13",
               "label": "Analytics & Events",
               "hint": "Событийная аналитика"
+            },
+            {
+              "id": "ct1",
+              "label": "Единые сценарии взаимодействия",
+              "hint": "Принцип сквозного CX"
+            },
+            {
+              "id": "ct2",
+              "label": "Единый визуальный язык / design system",
+              "hint": "Принцип сквозного CX"
+            },
+            {
+              "id": "ct3",
+              "label": "Доступность и юзабилити",
+              "hint": "Принцип сквозного CX"
+            },
+            {
+              "id": "ct4",
+              "label": "Омниканальность",
+              "hint": "Принцип сквозного CX"
+            },
+            {
+              "id": "ct5",
+              "label": "Персонализированный опыт",
+              "hint": "Принцип сквозного CX"
+            },
+            {
+              "id": "ct6",
+              "label": "Измерение удовлетворённости",
+              "hint": "Принцип сквозного CX"
+            }
+          ]
+        },
+        {
+          "title": "ДОМЕННЫЕ CAPABILITIES",
+          "kind": "tiles",
+          "items": [
+            {
+              "id": "c12",
+              "label": "Communications",
+              "hint": "Коммуникации с клиентом"
             },
             {
               "id": "c14",
@@ -527,7 +607,7 @@ window.ARCH_DATA = {
           ]
         },
         {
-          "title": "ПРОДУКТОВЫЕ CAPABILITIES · CX-сценарии",
+          "title": "ПРОДУКТОВЫЕ CAPABILITIES",
           "kind": "tiles",
           "items": [
             {
@@ -541,36 +621,6 @@ window.ARCH_DATA = {
               "hint": "Обратная связь и опросы"
             }
           ]
-        },
-        {
-          "title": "СКВОЗНЫЕ CAPABILITIES · Принципы",
-          "kind": "text",
-          "items": [
-            {
-              "id": "ct1",
-              "label": "Единые сценарии взаимодействия"
-            },
-            {
-              "id": "ct2",
-              "label": "Единый визуальный язык / design system"
-            },
-            {
-              "id": "ct3",
-              "label": "Доступность и юзабилити"
-            },
-            {
-              "id": "ct4",
-              "label": "Омниканальность"
-            },
-            {
-              "id": "ct5",
-              "label": "Персонализированный опыт"
-            },
-            {
-              "id": "ct6",
-              "label": "Измерение удовлетворённости"
-            }
-          ]
         }
       ]
     },
@@ -582,43 +632,43 @@ window.ARCH_DATA = {
       "platformTitle": "EXTRA PRODUCTS",
       "sections": [
         {
-          "title": "ПРОДУКТОВЫЕ CAPABILITIES · Extra Products",
+          "title": "СКВОЗНЫЕ CAPABILITIES",
           "kind": "tiles",
           "items": [
             {
-              "id": "v1",
-              "label": "Роуминг",
-              "hint": "Роуминговые продукты"
+              "id": "vx1",
+              "label": "Unified Auth",
+              "hint": "Единая авторизация (delivery: CX)"
             },
             {
-              "id": "v2",
-              "label": "EVA (AI)",
-              "hint": "AI-ассистент и сервисы"
+              "id": "vx2",
+              "label": "Unified Notifications",
+              "hint": "Единый центр уведомлений (delivery: CX)"
             },
             {
-              "id": "v3",
-              "label": "Кино / игры",
-              "hint": "Развлекательные сервисы"
+              "id": "vx3",
+              "label": "Unified Billing",
+              "hint": "Единый биллинг Extra Products"
             },
             {
-              "id": "v4",
-              "label": "Финансы",
-              "hint": "Финансовые продукты"
+              "id": "vx4",
+              "label": "Cross-analytics",
+              "hint": "Сквозная аналитика"
             },
             {
-              "id": "v5",
-              "label": "Cashback",
-              "hint": "Кэшбэк и бонусы"
+              "id": "vx5",
+              "label": "Data Exchange",
+              "hint": "Обмен данными между платформами"
             },
             {
-              "id": "v6",
-              "label": "Партнёрские сервисы",
-              "hint": "Сторонние интеграции"
+              "id": "vx6",
+              "label": "Journey Sync",
+              "hint": "Синхронизация клиентских путей"
             }
           ]
         },
         {
-          "title": "ДОМЕННЫЕ CAPABILITIES · Сервисы платформы",
+          "title": "ДОМЕННЫЕ CAPABILITIES",
           "kind": "tiles",
           "items": [
             {
@@ -660,36 +710,72 @@ window.ARCH_DATA = {
               "id": "v14",
               "label": "Отчёты / история",
               "hint": "История подключений"
+            },
+            {
+              "id": "vt1",
+              "label": "Единая навигация и сценарии",
+              "hint": "Принцип домена Extra Products"
+            },
+            {
+              "id": "vt2",
+              "label": "Единый профиль и настройки",
+              "hint": "Принцип домена Extra Products"
+            },
+            {
+              "id": "vt3",
+              "label": "Персонализация предложений",
+              "hint": "Принцип домена Extra Products"
+            },
+            {
+              "id": "vt4",
+              "label": "Единые коммуникации",
+              "hint": "Принцип домена Extra Products"
+            },
+            {
+              "id": "vt5",
+              "label": "Прозрачность условий и цены",
+              "hint": "Принцип домена Extra Products"
+            },
+            {
+              "id": "vt6",
+              "label": "Измерение эффективности",
+              "hint": "Принцип домена Extra Products"
             }
           ]
         },
         {
-          "title": "ЕДИНЫЙ ОПЫТ VAS",
-          "kind": "text",
+          "title": "ПРОДУКТОВЫЕ CAPABILITIES",
+          "kind": "tiles",
           "items": [
             {
-              "id": "vt1",
-              "label": "Единая навигация и сценарии"
+              "id": "v1",
+              "label": "Роуминг",
+              "hint": "Роуминговые продукты"
             },
             {
-              "id": "vt2",
-              "label": "Единый профиль и настройки"
+              "id": "v2",
+              "label": "EVA (AI)",
+              "hint": "AI-ассистент и сервисы"
             },
             {
-              "id": "vt3",
-              "label": "Персонализация предложений"
+              "id": "v3",
+              "label": "Кино / игры",
+              "hint": "Развлекательные сервисы"
             },
             {
-              "id": "vt4",
-              "label": "Единые коммуникации"
+              "id": "v4",
+              "label": "Финансы",
+              "hint": "Финансовые продукты"
             },
             {
-              "id": "vt5",
-              "label": "Прозрачность условий и цены"
+              "id": "v5",
+              "label": "Cashback",
+              "hint": "Кэшбэк и бонусы"
             },
             {
-              "id": "vt6",
-              "label": "Измерение эффективности"
+              "id": "v6",
+              "label": "Партнёрские сервисы",
+              "hint": "Сторонние интеграции"
             }
           ]
         }
