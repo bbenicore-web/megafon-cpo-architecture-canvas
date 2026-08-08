@@ -1,4 +1,11 @@
-const D = window.ARCH_DATA;
+function getData() {
+  return window.ARCH_DATA;
+}
+
+function editAttrs(path, type) {
+  if (!window.EDIT_MODE) return '';
+  return ` data-edit-path="${path}" data-edit-type="${type}"`;
+}
 
 const state = {
   focusMode: true,
@@ -18,14 +25,16 @@ function teamCountLabel(count) {
 }
 
 function zoneById(id) {
+  const D = getData();
   return D.roleZones.find((z) => z.id === id) || D.roleZones[0];
 }
 
 function cpoById(id) {
-  return D.cpoRoles.find((c) => c.id === id);
+  return getData().cpoRoles.find((c) => c.id === id);
 }
 
 function getSidebarZone() {
+  const D = getData();
   if (state.selectedRoleZone) return zoneById(state.selectedRoleZone);
   if (state.hoveredDomain) return zoneById(D.domainToZone[state.hoveredDomain]);
   if (state.selectedCpo) {
@@ -58,7 +67,7 @@ function isDirectionHighlighted(dirId) {
   if (!state.selectedCpo) return false;
   const cpo = cpoById(state.selectedCpo);
   if (!cpo) return false;
-  return D.teams.some((t) => t.direction === dirId && cpo.teamIds.includes(t.id));
+  return getData().teams.some((t) => t.direction === dirId && cpo.teamIds.includes(t.id));
 }
 
 function setState(patch) {
@@ -95,6 +104,7 @@ function btnClass(active, dimmed) {
 }
 
 function findTile(id) {
+  const D = getData();
   for (const domain of D.domains) {
     for (const section of domain.sections) {
       const item = section.items.find((i) => i.id === id);
@@ -115,6 +125,7 @@ function renderToolbar() {
 }
 
 function renderStatusBar() {
+  const D = getData();
   const parts = [];
   if (state.highlightedLeader) {
     const leader = D.businessLeaders.find((l) => l.id === state.highlightedLeader);
@@ -145,14 +156,15 @@ function renderStatusBar() {
 }
 
 function renderBusiness() {
+  const D = getData();
   const leaders = D.businessLeaders.map((l) => {
     const active = state.highlightedLeader === l.id;
-    return `<button type="button" class="pill-btn ${active ? 'active' : ''}" data-leader="${l.id}">${l.label}</button>`;
+    return `<button type="button" class="pill-btn ${active ? 'active' : ''}" data-leader="${l.id}"${editAttrs(`businessLeaders.${l.id}.label`, 'text')}>${l.label}</button>`;
   }).join('');
 
   const cpos = D.cpoRoles.map((c) => {
     const active = state.selectedCpo === c.id;
-    return `<button type="button" class="${btnClass(active, false)} chip-btn" data-cpo="${c.id}">${c.label}</button>`;
+    return `<button type="button" class="${btnClass(active, false)} chip-btn" data-cpo="${c.id}"${editAttrs(`cpoRoles.${c.id}.label`, 'text')}>${c.label}</button>`;
   }).join('');
 
   document.getElementById('business-section').innerHTML = panel('БИЗНЕС-ЗАКАЗЧИКИ', `
@@ -165,17 +177,22 @@ function renderBusiness() {
 }
 
 function renderDigitalCpo() {
+  const D = getData();
   const vitriny = state.highlightedLeader === 'vitriny';
   document.getElementById('digital-cpo').className = `banner${vitriny ? ' highlighted' : ''}`;
   document.getElementById('digital-cpo').innerHTML = `
-    ${D.digitalCpoTitle}
+    <span${editAttrs('digitalCpoTitle', 'text')}>${D.digitalCpoTitle}</span>
     <small>Платформа</small>
   `;
 }
 
 function renderSidebar() {
-  const metrics = D.metrics.map((m) => `
-    <div class="metric"><strong>${m.label}</strong><p>${m.description}</p></div>
+  const D = getData();
+  const metrics = D.metrics.map((m, i) => `
+    <div class="metric"${editAttrs(`metrics.${i}`, 'metric')}>
+      <strong${editAttrs(`metrics.${i}.label`, 'text')}>${m.label}</strong>
+      <p${editAttrs(`metrics.${i}.description`, 'text')}>${m.description}</p>
+    </div>
   `).join('');
 
   document.getElementById('sidebar-left').innerHTML = `
@@ -193,23 +210,25 @@ function renderSidebar() {
 }
 
 function renderDomains() {
+  const D = getData();
   const html = D.domains.map((d) => {
     const dimmed = isDomainDimmed(d.id);
     const highlighted = state.hoveredDomain === d.id || (state.selectedCpo && cpoById(state.selectedCpo)?.domain === d.id);
     return `
       <article class="domain ${d.color}${dimmed ? ' dimmed' : ''}${highlighted ? ' highlighted' : ''}"
         data-domain="${d.id}">
-        <div class="domain-head"><strong>${d.cpoTitle}</strong><span>${d.cpoSubtitle}</span></div>
-        <div class="domain-head platform-head"><strong>${d.platformTitle}</strong></div>
-        ${d.sections.map((s) => `
-          <div class="section-block">
-            <h4>${s.title}</h4>
+        <div class="domain-head"${editAttrs(`domains.${d.id}.cpoTitle`, 'text')}><strong>${d.cpoTitle}</strong><span${editAttrs(`domains.${d.id}.cpoSubtitle`, 'text')}>${d.cpoSubtitle}</span></div>
+        <div class="domain-head platform-head"${editAttrs(`domains.${d.id}.platformTitle`, 'text')}><strong>${d.platformTitle}</strong></div>
+        ${d.sections.map((s, si) => `
+          <div class="section-block" data-section="${d.id}.${si}">
+            <h4${editAttrs(`domains.${d.id}.sections.${si}.title`, 'text')}>${s.title}</h4>
             <div class="${s.kind === 'text' ? 'text-grid' : 'tile-grid'}">
               ${s.items.map((item) => {
                 const active = state.selectedTile === item.id;
                 const cls = s.kind === 'text' ? 'text-item' : 'tile';
                 return `<button type="button" class="${cls} ${active ? 'active' : ''}${dimmed ? ' dimmed' : ''}"
-                  data-tile="${item.id}" title="${item.hint || item.label}">${item.label}</button>`;
+                  data-tile="${item.id}" title="${item.hint || item.label}"
+                  ${editAttrs(`domains.${d.id}.sections.${si}.items.${item.id}`, 'tile')}>${item.label}</button>`;
               }).join('')}
             </div>
           </div>
@@ -222,19 +241,22 @@ function renderDomains() {
 }
 
 function renderIntegration() {
+  const D = getData();
   const dimmed = isIntegrationDimmed();
   document.getElementById('integration-section').innerHTML = panel(
     'ИНТЕГРАЦИЯ И ВЗАИМОДЕЙСТВИЕ ПЛАТФОРМ',
     `<div class="integration-grid${dimmed ? ' dimmed' : ''}">
       ${D.integration.map((i) => {
         const active = state.selectedTile === i.id;
-        return `<button type="button" class="integration-item ${active ? 'active' : ''}" data-int="${i.id}" title="${i.hint}">${i.label}</button>`;
+        return `<button type="button" class="integration-item ${active ? 'active' : ''}" data-int="${i.id}" title="${i.hint}"
+          ${editAttrs(`integration.${i.id}`, 'tile')}>${i.label}</button>`;
       }).join('')}
     </div>`
   );
 }
 
 function renderTeams() {
+  const D = getData();
   const showTeams = state.hoveredDomain === 'telecom' || state.selectedCpo !== null;
   const dirs = D.directions.map((dir) => {
     const teams = D.teams.filter((t) => t.direction === dir.id);
@@ -242,14 +264,15 @@ function renderTeams() {
     const dirDimmed = state.selectedCpo && !dirHighlighted;
     return `
       <div class="direction${dirDimmed ? ' dimmed' : ''}">
-        <div class="direction-head${dirHighlighted ? ' highlighted' : ''}">
+        <div class="direction-head${dirHighlighted ? ' highlighted' : ''}"${editAttrs(`directions.${dir.id}.label`, 'text')}>
           ${dir.label}
           <small>${teamCountLabel(teams.length)}</small>
         </div>
         ${teams.map((t) => {
           const highlighted = isTeamHighlighted(t.id);
           const dimmed = state.selectedCpo && !highlighted;
-          return `<div class="direction-team${highlighted ? ' highlighted' : ''}${dimmed ? ' dimmed' : ''}">${t.label}</div>`;
+          return `<div class="direction-team${highlighted ? ' highlighted' : ''}${dimmed ? ' dimmed' : ''}"
+            ${editAttrs(`teams.${t.id}.label`, 'text')}>${t.label}</div>`;
         }).join('')}
       </div>
     `;
@@ -262,12 +285,14 @@ function renderTeams() {
 }
 
 function renderFlow() {
+  const D = getData();
   const cards = D.flowSteps.map((step, idx) => {
     const active = state.selectedFlowStep === step.id;
     const dimmed = state.selectedFlowStep && !active;
     const arrow = idx < D.flowSteps.length - 1 ? '<span class="flow-arrow">→</span>' : '';
     return `
-      <button type="button" class="flow-card ${step.color}${active ? ' active' : ''}${dimmed ? ' dimmed' : ''}" data-flow="${step.id}">
+      <button type="button" class="flow-card ${step.color}${active ? ' active' : ''}${dimmed ? ' dimmed' : ''}" data-flow="${step.id}"
+        ${editAttrs(`flowSteps.${step.id}`, 'flowStep')}>
         <h3>${step.title}</h3>${step.subtitle ? `<p>${step.subtitle}</p>` : ''}
         <ul>${step.items.map((i) => `<li>${i}</li>`).join('')}</ul>
       </button>${arrow}
@@ -278,11 +303,13 @@ function renderFlow() {
 }
 
 function renderRoles() {
+  const D = getData();
   const cards = D.roleZones.map((z) => {
     const active = state.selectedRoleZone === z.id;
     const dimmed = state.selectedRoleZone && !active;
     return `
-      <button type="button" class="role-card ${z.color}${active ? ' active' : ''}${dimmed ? ' dimmed' : ''}" data-zone="${z.id}">
+      <button type="button" class="role-card ${z.color}${active ? ' active' : ''}${dimmed ? ' dimmed' : ''}" data-zone="${z.id}"
+        ${editAttrs(`roleZones.${z.id}`, 'roleZone')}>
         <h3>${z.title}</h3>
         <p>${z.subtitle}</p>
         <p>${z.ownership}</p>
@@ -297,6 +324,7 @@ function renderRoles() {
 }
 
 function renderRaci() {
+  const D = getData();
   const filtered = state.raciFilter === 'all'
     ? D.raci
     : D.raci.filter((r) =>
@@ -307,8 +335,8 @@ function renderRaci() {
         r.product === state.raciFilter
       );
 
-  const rows = filtered.map((r) => `
-    <tr>
+  const rows = filtered.map((r, ri) => `
+    <tr data-raci-index="${D.raci.indexOf(r)}" ${editAttrs(`raci.${D.raci.indexOf(r)}`, 'raciRow')}>
       <td>${r.area}</td>
       <td class="raci-cell ${state.raciFilter === r.telecom ? 'match' : ''}">${r.telecom}</td>
       <td class="raci-cell ${state.raciFilter === r.cx ? 'match' : ''}">${r.cx}</td>
@@ -351,10 +379,14 @@ function render() {
   renderFlow();
   renderRoles();
   renderRaci();
+  if (window.ArchEditor) window.ArchEditor.afterRender();
 }
 
 function bindEvents() {
   document.body.addEventListener('click', (e) => {
+    if (window.EDIT_MODE && e.target.closest('[data-edit-path]') && !e.target.closest('.edit-panel, .edit-toolbar')) {
+      return;
+    }
     const target = e.target.closest('[data-leader], [data-cpo], [data-tile], [data-int], [data-flow], [data-zone], #reset-btn');
     if (!target) return;
 
@@ -425,3 +457,5 @@ if (!window.ARCH_DATA) {
   bindEvents();
   render();
 }
+
+window.ArchApp = { getData, render, state, setState, resetSelection };
