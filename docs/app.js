@@ -220,7 +220,7 @@ function renderDomains() {
         <div class="domain-head"${editAttrs(`domains.${d.id}.cpoTitle`, 'text')}><strong>${d.cpoTitle}</strong><span${editAttrs(`domains.${d.id}.cpoSubtitle`, 'text')}>${d.cpoSubtitle}</span></div>
         <div class="domain-head platform-head"${editAttrs(`domains.${d.id}.platformTitle`, 'text')}><strong>${d.platformTitle}</strong></div>
         ${d.sections.map((s, si) => `
-          <div class="section-block" data-section="${d.id}.${si}">
+          <div class="section-block" data-section="${d.id}.${si}"${editAttrs(`domains.${d.id}.sections.${si}`, 'section')}>
             <h4${editAttrs(`domains.${d.id}.sections.${si}.title`, 'text')}>${s.title}</h4>
             <div class="${s.kind === 'text' ? 'text-grid' : 'tile-grid'}">
               ${s.items.map((item) => {
