@@ -124,6 +124,12 @@ function collapsible(title, body, count, titlePath) {
   return `${titleEl}<div class="panel-body">${body}</div>`;
 }
 
+function clearBlockElement(el) {
+  if (!el) return;
+  el.removeAttribute('data-edit-path');
+  el.removeAttribute('data-edit-type');
+}
+
 function markBlockElement(el, blockId) {
   if (!el) return;
   if (window.EDIT_MODE) {
@@ -217,6 +223,7 @@ function renderBusiness() {
   if (!isBlockVisible('business')) {
     el.hidden = true;
     el.innerHTML = '';
+    clearBlockElement(el);
     return;
   }
   el.hidden = false;
@@ -249,6 +256,7 @@ function renderDigitalCpo() {
   if (!isBlockVisible('digitalCpo')) {
     el.hidden = true;
     el.innerHTML = '';
+    clearBlockElement(el);
     return;
   }
   el.hidden = false;
@@ -295,6 +303,7 @@ function renderSidebar() {
   if (!isBlockVisible('sidebarRight')) {
     right.hidden = true;
     right.innerHTML = '';
+    clearBlockElement(right);
     return;
   }
   right.hidden = false;
@@ -319,6 +328,7 @@ function renderDomains() {
   if (!isBlockVisible('domains')) {
     el.hidden = true;
     el.innerHTML = '';
+    clearBlockElement(el);
     return;
   }
   el.hidden = false;
@@ -359,6 +369,7 @@ function renderIntegration() {
   if (!isBlockVisible('integration')) {
     el.hidden = true;
     el.innerHTML = '';
+    clearBlockElement(el);
     return;
   }
   el.hidden = false;
@@ -385,6 +396,7 @@ function renderTeams() {
   if (!isBlockVisible('teams')) {
     el.hidden = true;
     el.innerHTML = '';
+    clearBlockElement(el);
     return;
   }
   el.hidden = false;
@@ -425,6 +437,7 @@ function renderFlow() {
   if (!isBlockVisible('flow')) {
     el.hidden = true;
     el.innerHTML = '';
+    clearBlockElement(el);
     return;
   }
   el.hidden = false;
@@ -457,6 +470,7 @@ function renderRoles() {
   if (!isBlockVisible('roles')) {
     el.hidden = true;
     el.innerHTML = '';
+    clearBlockElement(el);
     return;
   }
   el.hidden = false;
@@ -492,6 +506,7 @@ function renderRaci() {
   if (!isBlockVisible('raci')) {
     el.hidden = true;
     el.innerHTML = '';
+    clearBlockElement(el);
     return;
   }
   el.hidden = false;
