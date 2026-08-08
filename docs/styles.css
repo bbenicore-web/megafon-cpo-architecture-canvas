@@ -612,6 +612,72 @@ body.edit-mode [data-edit-path].edit-selected {
 
 .edit-add-raci { margin-bottom: 0.5rem; }
 
+.edit-block-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+
+.edit-add-section { margin-top: 0.35rem; }
+
+.sidebar-hint { margin-top: 0.5rem; font-size: 0.68rem; }
+
+.sidebar-zone-body {
+  display: block;
+  padding: 0.15rem;
+  border-radius: 4px;
+}
+
+.edit-zone-pin {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.45rem 0.65rem;
+  margin-bottom: 0.5rem;
+  background: #eff6ff;
+  border: 1px solid #93c5fd;
+  border-radius: 6px;
+  font-size: 0.72rem;
+}
+
+.edit-zone-label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #1e3a8a;
+}
+
+.edit-zone-label.freeze-label span {
+  font-weight: 600;
+}
+
+.edit-zone-pin select {
+  padding: 0.2rem 0.35rem;
+  border: 1px solid #93c5fd;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  background: #fff;
+}
+
+.edit-zone-pin select:disabled {
+  opacity: 0.5;
+}
+
+body.edit-mode .page-header h1,
+body.edit-mode .page-header p {
+  outline: 1px dashed transparent;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+body.edit-mode .page-header h1:hover,
+body.edit-mode .page-header p:hover {
+  outline-color: #eab308;
+  background: rgba(254, 249, 195, 0.35);
+}
+
 .edit-toast {
   position: fixed;
   bottom: 1.25rem;

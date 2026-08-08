@@ -18,6 +18,12 @@ const state = {
   raciFilter: 'all',
 };
 
+window.ArchEditPin = window.ArchEditPin || { pinnedZoneId: 'digital', freezeDynamic: false };
+
+function isEditFrozen() {
+  return window.EDIT_MODE && window.ArchEditPin?.freezeDynamic;
+}
+
 function teamCountLabel(count) {
   if (count === 1) return '1 команда';
   if (count >= 2 && count <= 4) return `${count} команды`;
@@ -35,6 +41,9 @@ function cpoById(id) {
 
 function getSidebarZone() {
   const D = getData();
+  if (isEditFrozen() && window.ArchEditPin.pinnedZoneId) {
+    return zoneById(window.ArchEditPin.pinnedZoneId);
+  }
   if (state.selectedRoleZone) return zoneById(state.selectedRoleZone);
   if (state.hoveredDomain) return zoneById(D.domainToZone[state.hoveredDomain]);
   if (state.selectedCpo) {
@@ -45,6 +54,7 @@ function getSidebarZone() {
 }
 
 function isDomainDimmed(domainId) {
+  if (isEditFrozen()) return false;
   if (state.selectedCpo) {
     const cpo = cpoById(state.selectedCpo);
     return cpo ? cpo.domain !== domainId : false;
@@ -54,6 +64,7 @@ function isDomainDimmed(domainId) {
 }
 
 function isIntegrationDimmed() {
+  if (isEditFrozen()) return false;
   return state.focusMode && state.hoveredDomain !== null;
 }
 
@@ -229,14 +240,15 @@ function renderSidebar() {
   `;
 
   const zone = getSidebarZone();
+  const zonePinned = isEditFrozen();
   document.getElementById('sidebar-right').innerHTML = panel(
-    `${ui.sidebarZonePrefix || 'ЗОНА · '}${zone.title.toUpperCase()}`,
-    `<div${editAttrs(`roleZones.${zone.id}`, 'roleZone')}>
+    `${ui.sidebarZonePrefix || 'ЗОНА · '}${zone.title.toUpperCase()}${zonePinned ? ' 📌' : ''}`,
+    `<div class="sidebar-zone-body"${editAttrs(`roleZones.${zone.id}`, 'roleZone')}>
       <p class="muted">${zone.ownership}</p>
-      <ul>${zone.responsibilities.slice(0, 4).map((r) => `<li>${r}</li>`).join('')}</ul>
+      <ul>${zone.responsibilities.map((r) => `<li>${r}</li>`).join('')}</ul>
       <p class="muted">KPI: ${zone.kpis}</p>
     </div>
-    <p class="muted sidebar-hint"${editAttrs('ui.sidebarZoneHint', 'text')}>${ui.sidebarZoneHint || ''}</p>`,
+    <p class="muted sidebar-hint"${editAttrs('ui.sidebarZoneHint', 'text')}>${zonePinned ? 'Зона закреплена — можно редактировать' : (ui.sidebarZoneHint || '')}</p>`,
     null
   );
 }
@@ -292,7 +304,7 @@ function renderIntegration() {
 function renderTeams() {
   const D = getData();
   const ui = D.ui || {};
-  const showTeams = state.hoveredDomain === 'telecom' || state.selectedCpo !== null;
+  const showTeams = isEditFrozen() || state.hoveredDomain === 'telecom' || state.selectedCpo !== null;
   const dirs = D.directions.map((dir) => {
     const teams = D.teams.filter((t) => t.direction === dir.id);
     const dirHighlighted = isDirectionHighlighted(dir.id);
@@ -486,6 +498,7 @@ function bindEvents() {
   });
 
   document.body.addEventListener('mouseover', (e) => {
+    if (isEditFrozen()) return;
     const domain = e.target.closest('[data-domain]');
     if (domain && state.focusMode) {
       if (state.hoveredDomain !== domain.dataset.domain) {
@@ -495,6 +508,7 @@ function bindEvents() {
   });
 
   document.body.addEventListener('mouseout', (e) => {
+    if (isEditFrozen()) return;
     const domain = e.target.closest('[data-domain]');
     if (domain && state.focusMode && !state.selectedCpo) {
       const related = e.relatedTarget && e.relatedTarget.closest('[data-domain]');
