@@ -69,9 +69,62 @@
     return true;
   }
 
+  function fixSelect(label, id, value, options) {
+    const opts = options.map((o) => `<option value="${escapeAttr(o.value)}"${o.value === value ? ' selected' : ''}>${escapeHtml(o.label)}</option>`).join('');
+    return `<label class="edit-field"><span>${label}</span><select id="${id}" class="edit-input">${opts}</select></label>`;
+  }
+
+  const COLOR_OPTIONS = [
+    { value: 'green', label: 'Зелёный' },
+    { value: 'blue', label: 'Синий' },
+    { value: 'orange', label: 'Оранжевый' },
+    { value: 'purple', label: 'Фиолетовый' },
+  ];
+
+  const DOMAIN_OPTIONS = [
+    { value: 'telecom', label: 'Telecom' },
+    { value: 'cx', label: 'CX' },
+    { value: 'vas', label: 'VAS' },
+  ];
+
+  function ensureUiDefaults() {
+    const D = getData();
+    if (D.ui) return;
+    D.ui = {
+      pageTitle: document.title,
+      pageSubtitle: document.querySelector('.page-header p')?.textContent || '',
+      panels: {
+        business: 'БИЗНЕС-ЗАКАЗЧИКИ',
+        platformWhy: 'ЗАЧЕМ ПЛАТФОРМА',
+        platformMetrics: 'СВЯЗЬ С БИЗНЕСОМ',
+        integration: 'ИНТЕГРАЦИЯ И ВЗАИМОДЕЙСТВИЕ ПЛАТФОРМ',
+        teams: 'КОМАНДА ТЕЛЕКОМ ПЛАТФОРМЫ',
+        flow: '1. Модель взаимодействия',
+        roles: '2. Описание ролей и зон ответственности',
+        raci: 'Легенда RACI',
+      },
+      business: {
+        leadersHint: '↓ управляет CPO направлениями',
+        cpoSubtitle: 'CPO продуктовых направлений',
+        cpoHint: 'Запросы от CPO направлений → платформа Telecom',
+      },
+      platformWhyText: 'Платформа даёт общие capabilities — каталоги, поиск, навигацию, профиль и сервисы — всем доменам.',
+      digitalCpoBadge: 'Платформа',
+      sidebarZonePrefix: 'ЗОНА · ',
+      sidebarZoneHint: 'Наведите на колонку платформы или откройте блок «2. Описание ролей» ниже.',
+      statusDefault: 'Кликните на элемент схемы или наведите на колонку платформы',
+      raciLegend: 'R — исполняет · A — отвечает · C — консультирует · I — информируется',
+      raciHeaders: ['Зона', 'Head Telecom', 'Head CX', 'Head VAS', 'Platform', 'Product (P&L)'],
+    };
+  }
+
+  function directionOptions() {
+    return getData().directions.map((d) => ({ value: d.id, label: d.label }));
+  }
+
   function entityIdFromPath(path) {
     const parts = path.split('.');
-    if (parts.length >= 2 && /^(businessLeaders|cpoRoles|teams|flowSteps|roleZones|integration)$/.test(parts[0])) {
+    if (parts.length >= 2 && /^(businessLeaders|cpoRoles|teams|flowSteps|roleZones|integration|directions|domains)$/.test(parts[0])) {
       return parts[1];
     }
     return null;
@@ -88,6 +141,11 @@
     if (type === 'businessLeader') return D.businessLeaders.length > 1;
     if (type === 'cpoRole') return true;
     if (type === 'team') return true;
+    if (type === 'direction') {
+      const id = entityIdFromPath(path);
+      const hasTeams = id && D.teams.some((t) => t.direction === id);
+      return !hasTeams && D.directions.length > 1;
+    }
     if (type === 'text') {
       if (/^businessLeaders\.[^.]+$/.test(path)) return D.businessLeaders.length > 1;
       if (/^businessLeaders\.[^.]+\.label$/.test(path)) return D.businessLeaders.length > 1;
@@ -108,6 +166,7 @@
       businessLeader: 'Удалить лидера',
       cpoRole: 'Удалить CPO',
       team: 'Удалить команду',
+      direction: 'Удалить направление',
     };
     return labels[type] || 'Удалить';
   }
@@ -182,6 +241,13 @@
       const id = entityIdFromPath(path);
       if (!id) return false;
       D.roleZones = D.roleZones.filter((item) => item.id !== id);
+      return true;
+    }
+
+    if (parts[0] === 'directions') {
+      const id = entityIdFromPath(path);
+      if (!id) return false;
+      D.directions = D.directions.filter((item) => item.id !== id);
       return true;
     }
 
@@ -363,22 +429,37 @@
 
     if (type === 'text') {
       html += fixField('Текст', 'ef-label', val);
+    } else if (type === 'domain') {
+      html += fixField('CPO заголовок', 'ef-cpoTitle', val.cpoTitle);
+      html += fixField('CPO подзаголовок', 'ef-cpoSubtitle', val.cpoSubtitle);
+      html += fixField('Платформа', 'ef-platformTitle', val.platformTitle);
+      html += fixSelect('Цвет колонки', 'ef-color', val.color, COLOR_OPTIONS);
+    } else if (type === 'direction') {
+      html += fixField('Направление', 'ef-label', val.label);
+      const teamCount = getData().teams.filter((t) => t.direction === val.id).length;
+      html += `<p class="edit-meta">${teamCount} команд в направлении</p>`;
     } else if (type === 'tile') {
       html += fixField('Название', 'ef-label', val.label);
       html += fixField('Подсказка', 'ef-hint', val.hint || '');
     } else if (type === 'section') {
       html += fixField('Заголовок секции', 'ef-title', val.title);
-      html += `<p class="edit-meta">${val.items.length} элемент(ов) · тип: ${val.kind === 'text' ? 'текст' : 'плитки'}</p>`;
+      html += fixSelect('Тип секции', 'ef-kind', val.kind || 'tiles', [
+        { value: 'tiles', label: 'Плитки' },
+        { value: 'text', label: 'Текстовые блоки' },
+      ]);
+      html += `<p class="edit-meta">${val.items.length} элемент(ов)</p>`;
     } else if (type === 'metric') {
       html += fixField('Метрика', 'ef-label', val.label);
       html += fixField('Описание', 'ef-description', val.description);
     } else if (type === 'flowStep') {
       html += fixField('Заголовок', 'ef-title', val.title);
       html += fixField('Подзаголовок', 'ef-subtitle', val.subtitle || '');
+      html += fixSelect('Цвет', 'ef-color', val.color || 'purple', COLOR_OPTIONS.filter((c) => ['green', 'purple'].includes(c.value)));
       html += fixField('Пункты (по одному на строку)', 'ef-items', (val.items || []).join('\n'), { textarea: true, rows: 6 });
     } else if (type === 'roleZone') {
       html += fixField('Заголовок', 'ef-title', val.title);
       html += fixField('Подзаголовок', 'ef-subtitle', val.subtitle);
+      html += fixSelect('Цвет', 'ef-color', val.color || 'purple', COLOR_OPTIONS);
       html += fixField('Владение', 'ef-ownership', val.ownership, { textarea: true, rows: 2 });
       html += fixField('Ответственности (по одной на строку)', 'ef-resp', (val.responsibilities || []).join('\n'), { textarea: true, rows: 6 });
       html += fixField('KPI', 'ef-kpis', val.kpis);
@@ -393,11 +474,12 @@
       const leader = getByPath(path.replace(/\.label$/, ''));
       html += fixField('Лидер', 'ef-label', leader?.label || '');
     } else if (type === 'cpoRole') {
-      const cpo = getByPath(path.replace(/\.label$/, ''));
-      html += fixField('CPO', 'ef-label', cpo?.label || '');
+      html += fixField('CPO', 'ef-label', val?.label || '');
+      html += fixSelect('Домен', 'ef-domain', val?.domain || 'telecom', DOMAIN_OPTIONS);
+      html += fixField('ID команд (через запятую)', 'ef-teamIds', (val?.teamIds || []).join(', '));
     } else if (type === 'team') {
-      const team = getByPath(path.replace(/\.label$/, ''));
-      html += fixField('Команда', 'ef-label', team?.label || '');
+      html += fixField('Команда', 'ef-label', val?.label || '');
+      html += fixSelect('Направление', 'ef-direction', val?.direction || 'lead', directionOptions());
     }
 
     body.innerHTML = html;
@@ -426,21 +508,31 @@
           showToast('Ошибка: не удалось сохранить');
           return;
         }
+      } else if (type === 'domain') {
+        val.cpoTitle = readField('ef-cpoTitle');
+        val.cpoSubtitle = readField('ef-cpoSubtitle');
+        val.platformTitle = readField('ef-platformTitle');
+        val.color = readField('ef-color');
+      } else if (type === 'direction') {
+        val.label = readField('ef-label');
       } else if (type === 'tile') {
         val.label = readField('ef-label');
         val.hint = readField('ef-hint');
       } else if (type === 'section') {
         val.title = readField('ef-title');
+        val.kind = readField('ef-kind');
       } else if (type === 'metric') {
         val.label = readField('ef-label');
         val.description = readField('ef-description');
       } else if (type === 'flowStep') {
         val.title = readField('ef-title');
         val.subtitle = readField('ef-subtitle');
+        val.color = readField('ef-color');
         val.items = readField('ef-items').split('\n').map((s) => s.trim()).filter(Boolean);
       } else if (type === 'roleZone') {
         val.title = readField('ef-title');
         val.subtitle = readField('ef-subtitle');
+        val.color = readField('ef-color');
         val.ownership = readField('ef-ownership');
         val.responsibilities = readField('ef-resp').split('\n').map((s) => s.trim()).filter(Boolean);
         val.kpis = readField('ef-kpis');
@@ -451,15 +543,16 @@
         val.vas = readField('ef-vas');
         val.platform = readField('ef-platform');
         val.product = readField('ef-product');
+      } else if (type === 'cpoRole') {
+        val.label = readField('ef-label');
+        val.domain = readField('ef-domain');
+        val.teamIds = readField('ef-teamIds').split(',').map((s) => s.trim()).filter(Boolean);
+      } else if (type === 'team') {
+        val.label = readField('ef-label');
+        val.direction = readField('ef-direction');
       } else if (type === 'businessLeader' || (type === 'text' && /^businessLeaders\./.test(selectedPath))) {
         const leader = getByPath(selectedPath.replace(/\.label$/, '')) || val;
         leader.label = readField('ef-label');
-      } else if (type === 'cpoRole' || (type === 'text' && /^cpoRoles\./.test(selectedPath))) {
-        const cpo = getByPath(selectedPath.replace(/\.label$/, '')) || val;
-        cpo.label = readField('ef-label');
-      } else if (type === 'team' || (type === 'text' && /^teams\./.test(selectedPath))) {
-        const team = getByPath(selectedPath.replace(/\.label$/, '')) || val;
-        team.label = readField('ef-label');
       } else {
         showToast('Ошибка: неизвестный тип элемента');
         return;
