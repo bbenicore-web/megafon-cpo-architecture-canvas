@@ -87,13 +87,19 @@ function resetSelection() {
   });
 }
 
-function panel(title, body) {
-  return `<div class="panel-inner"><div class="panel-title">${title}</div><div class="panel-body">${body}</div></div>`;
+function panel(title, body, titlePath) {
+  const titleEl = titlePath
+    ? `<div class="panel-title"${editAttrs(titlePath, 'text')}>${title}</div>`
+    : `<div class="panel-title">${title}</div>`;
+  return `<div class="panel-inner">${titleEl}<div class="panel-body">${body}</div></div>`;
 }
 
-function collapsible(title, body, count) {
+function collapsible(title, body, count, titlePath) {
   const countBadge = count ? `<span class="badge">${count}</span>` : '';
-  return `<summary class="panel-title collapsible-title">${title}${countBadge}</summary><div class="panel-body">${body}</div>`;
+  const titleEl = titlePath
+    ? `<summary class="panel-title collapsible-title"${editAttrs(titlePath, 'text')}>${title}${countBadge}</summary>`
+    : `<summary class="panel-title collapsible-title">${title}${countBadge}</summary>`;
+  return `${titleEl}<div class="panel-body">${body}</div>`;
 }
 
 function btnClass(active, dimmed) {
@@ -152,11 +158,31 @@ function renderStatusBar() {
   }
   document.getElementById('status-bar').textContent = parts.length
     ? parts.join(' · ')
-    : 'Кликните на элемент схемы или наведите на колонку платформы';
+    : (D.ui?.statusDefault || 'Кликните на элемент схемы или наведите на колонку платформы');
+}
+
+function renderPageMeta() {
+  const D = getData();
+  const ui = D.ui || {};
+  if (ui.pageTitle) {
+    document.title = ui.pageTitle;
+    const h1 = document.querySelector('.page-header h1');
+    if (h1) {
+      h1.textContent = ui.pageTitle;
+      if (window.EDIT_MODE) h1.setAttribute('data-edit-path', 'ui.pageTitle'), h1.setAttribute('data-edit-type', 'text');
+    }
+  }
+  const sub = document.querySelector('.page-header p');
+  if (sub && ui.pageSubtitle) {
+    sub.textContent = ui.pageSubtitle;
+    if (window.EDIT_MODE) sub.setAttribute('data-edit-path', 'ui.pageSubtitle'), sub.setAttribute('data-edit-type', 'text');
+  }
 }
 
 function renderBusiness() {
   const D = getData();
+  const ui = D.ui || {};
+  const biz = ui.business || {};
   const leaders = D.businessLeaders.map((l) => {
     const active = state.highlightedLeader === l.id;
     return `<button type="button" class="pill-btn ${active ? 'active' : ''}" data-leader="${l.id}"${editAttrs(`businessLeaders.${l.id}.label`, 'text')}>${l.label}</button>`;
@@ -164,48 +190,54 @@ function renderBusiness() {
 
   const cpos = D.cpoRoles.map((c) => {
     const active = state.selectedCpo === c.id;
-    return `<button type="button" class="${btnClass(active, false)} chip-btn" data-cpo="${c.id}"${editAttrs(`cpoRoles.${c.id}.label`, 'text')}>${c.label}</button>`;
+    return `<button type="button" class="${btnClass(active, false)} chip-btn" data-cpo="${c.id}"${editAttrs(`cpoRoles.${c.id}`, 'cpoRole')}>${c.label}</button>`;
   }).join('');
 
-  document.getElementById('business-section').innerHTML = panel('БИЗНЕС-ЗАКАЗЧИКИ', `
+  document.getElementById('business-section').innerHTML = panel(ui.panels?.business || 'БИЗНЕС-ЗАКАЗЧИКИ', `
     <div class="grid-2 leaders-row">${leaders}</div>
-    <p class="muted arrow-hint ${state.highlightedLeader === 'telecom-core' ? 'active' : ''}">↓ управляет CPO направлениями</p>
-    <p class="muted" style="margin-bottom:0.5rem">CPO продуктовых направлений</p>
+    <p class="muted arrow-hint ${state.highlightedLeader === 'telecom-core' ? 'active' : ''}"${editAttrs('ui.business.leadersHint', 'text')}>${biz.leadersHint || ''}</p>
+    <p class="muted" style="margin-bottom:0.5rem"${editAttrs('ui.business.cpoSubtitle', 'text')}>${biz.cpoSubtitle || ''}</p>
     <div class="chips">${cpos}</div>
-    <p class="muted ${state.selectedCpo ? 'active' : ''}" style="margin-top:0.75rem">Запросы от CPO направлений → платформа Telecom</p>
-  `);
+    <p class="muted ${state.selectedCpo ? 'active' : ''}" style="margin-top:0.75rem"${editAttrs('ui.business.cpoHint', 'text')}>${biz.cpoHint || ''}</p>
+  `, 'ui.panels.business');
 }
 
 function renderDigitalCpo() {
   const D = getData();
+  const ui = D.ui || {};
   const vitriny = state.highlightedLeader === 'vitriny';
   document.getElementById('digital-cpo').className = `banner${vitriny ? ' highlighted' : ''}`;
   document.getElementById('digital-cpo').innerHTML = `
     <span${editAttrs('digitalCpoTitle', 'text')}>${D.digitalCpoTitle}</span>
-    <small>Платформа</small>
+    <small${editAttrs('ui.digitalCpoBadge', 'text')}>${ui.digitalCpoBadge || 'Платформа'}</small>
   `;
 }
 
 function renderSidebar() {
   const D = getData();
+  const ui = D.ui || {};
   const metrics = D.metrics.map((m, i) => `
     <div class="metric"${editAttrs(`metrics.${i}`, 'metric')}>
-      <strong${editAttrs(`metrics.${i}.label`, 'text')}>${m.label}</strong>
-      <p${editAttrs(`metrics.${i}.description`, 'text')}>${m.description}</p>
+      <strong>${m.label}</strong>
+      <p>${m.description}</p>
     </div>
   `).join('');
 
   document.getElementById('sidebar-left').innerHTML = `
-    ${panel('ЗАЧЕМ ПЛАТФОРМА', '<p class="muted">Платформа даёт общие capabilities — каталоги, поиск, навигацию, профиль и сервисы — всем доменам. Новые продукты запускаются быстрее и выглядят единообразно.</p>')}
-    ${panel('СВЯЗЬ С БИЗНЕСОМ', metrics)}
+    ${panel(ui.panels?.platformWhy || 'ЗАЧЕМ ПЛАТФОРМА', `<p class="muted"${editAttrs('ui.platformWhyText', 'text')}>${ui.platformWhyText || ''}</p>`, 'ui.panels.platformWhy')}
+    ${panel(ui.panels?.platformMetrics || 'СВЯЗЬ С БИЗНЕСОМ', metrics, 'ui.panels.platformMetrics')}
   `;
 
   const zone = getSidebarZone();
   document.getElementById('sidebar-right').innerHTML = panel(
-    `ЗОНА · ${zone.title.toUpperCase()}`,
-    `<p class="muted">${zone.ownership}</p>
-     <ul>${zone.responsibilities.slice(0, 4).map((r) => `<li>${r}</li>`).join('')}</ul>
-     <p class="muted">KPI: ${zone.kpis}</p>`
+    `${ui.sidebarZonePrefix || 'ЗОНА · '}${zone.title.toUpperCase()}`,
+    `<div${editAttrs(`roleZones.${zone.id}`, 'roleZone')}>
+      <p class="muted">${zone.ownership}</p>
+      <ul>${zone.responsibilities.slice(0, 4).map((r) => `<li>${r}</li>`).join('')}</ul>
+      <p class="muted">KPI: ${zone.kpis}</p>
+    </div>
+    <p class="muted sidebar-hint"${editAttrs('ui.sidebarZoneHint', 'text')}>${ui.sidebarZoneHint || ''}</p>`,
+    null
   );
 }
 
@@ -216,9 +248,9 @@ function renderDomains() {
     const highlighted = state.hoveredDomain === d.id || (state.selectedCpo && cpoById(state.selectedCpo)?.domain === d.id);
     return `
       <article class="domain ${d.color}${dimmed ? ' dimmed' : ''}${highlighted ? ' highlighted' : ''}"
-        data-domain="${d.id}">
-        <div class="domain-head"${editAttrs(`domains.${d.id}.cpoTitle`, 'text')}><strong>${d.cpoTitle}</strong><span${editAttrs(`domains.${d.id}.cpoSubtitle`, 'text')}>${d.cpoSubtitle}</span></div>
-        <div class="domain-head platform-head"${editAttrs(`domains.${d.id}.platformTitle`, 'text')}><strong>${d.platformTitle}</strong></div>
+        data-domain="${d.id}"${editAttrs(`domains.${d.id}`, 'domain')}>
+        <div class="domain-head"><strong${editAttrs(`domains.${d.id}.cpoTitle`, 'text')}>${d.cpoTitle}</strong><span${editAttrs(`domains.${d.id}.cpoSubtitle`, 'text')}>${d.cpoSubtitle}</span></div>
+        <div class="domain-head platform-head"><strong${editAttrs(`domains.${d.id}.platformTitle`, 'text')}>${d.platformTitle}</strong></div>
         ${d.sections.map((s, si) => `
           <div class="section-block" data-section="${d.id}.${si}"${editAttrs(`domains.${d.id}.sections.${si}`, 'section')}>
             <h4${editAttrs(`domains.${d.id}.sections.${si}.title`, 'text')}>${s.title}</h4>
@@ -242,29 +274,32 @@ function renderDomains() {
 
 function renderIntegration() {
   const D = getData();
+  const ui = D.ui || {};
   const dimmed = isIntegrationDimmed();
   document.getElementById('integration-section').innerHTML = panel(
-    'ИНТЕГРАЦИЯ И ВЗАИМОДЕЙСТВИЕ ПЛАТФОРМ',
+    ui.panels?.integration || 'ИНТЕГРАЦИЯ И ВЗАИМОДЕЙСТВИЕ ПЛАТФОРМ',
     `<div class="integration-grid${dimmed ? ' dimmed' : ''}">
       ${D.integration.map((i) => {
         const active = state.selectedTile === i.id;
         return `<button type="button" class="integration-item ${active ? 'active' : ''}" data-int="${i.id}" title="${i.hint}"
           ${editAttrs(`integration.${i.id}`, 'tile')}>${i.label}</button>`;
       }).join('')}
-    </div>`
+    </div>`,
+    'ui.panels.integration'
   );
 }
 
 function renderTeams() {
   const D = getData();
+  const ui = D.ui || {};
   const showTeams = state.hoveredDomain === 'telecom' || state.selectedCpo !== null;
   const dirs = D.directions.map((dir) => {
     const teams = D.teams.filter((t) => t.direction === dir.id);
     const dirHighlighted = isDirectionHighlighted(dir.id);
     const dirDimmed = state.selectedCpo && !dirHighlighted;
     return `
-      <div class="direction${dirDimmed ? ' dimmed' : ''}">
-        <div class="direction-head${dirHighlighted ? ' highlighted' : ''}"${editAttrs(`directions.${dir.id}.label`, 'text')}>
+      <div class="direction${dirDimmed ? ' dimmed' : ''}"${editAttrs(`directions.${dir.id}`, 'direction')}>
+        <div class="direction-head${dirHighlighted ? ' highlighted' : ''}">
           ${dir.label}
           <small>${teamCountLabel(teams.length)}</small>
         </div>
@@ -272,15 +307,16 @@ function renderTeams() {
           const highlighted = isTeamHighlighted(t.id);
           const dimmed = state.selectedCpo && !highlighted;
           return `<div class="direction-team${highlighted ? ' highlighted' : ''}${dimmed ? ' dimmed' : ''}"
-            ${editAttrs(`teams.${t.id}.label`, 'text')}>${t.label}</div>`;
+            ${editAttrs(`teams.${t.id}`, 'team')}>${t.label}</div>`;
         }).join('')}
       </div>
     `;
   }).join('');
 
   document.getElementById('teams-section').innerHTML = panel(
-    'КОМАНДА ТЕЛЕКОМ ПЛАТФОРМЫ',
-    `<div class="directions${showTeams ? '' : ' muted-section'}">${dirs}</div>`
+    ui.panels?.teams || 'КОМАНДА ТЕЛЕКОМ ПЛАТФОРМЫ',
+    `<div class="directions${showTeams ? '' : ' muted-section'}">${dirs}</div>`,
+    'ui.panels.teams'
   );
 }
 
@@ -299,7 +335,12 @@ function renderFlow() {
     `;
   }).join('');
 
-  document.getElementById('flow-section').innerHTML = collapsible('1. Модель взаимодействия', `<div class="flow">${cards}</div>`);
+  document.getElementById('flow-section').innerHTML = collapsible(
+    (D.ui?.panels?.flow) || '1. Модель взаимодействия',
+    `<div class="flow">${cards}</div>`,
+    null,
+    'ui.panels.flow'
+  );
 }
 
 function renderRoles() {
@@ -320,11 +361,18 @@ function renderRoles() {
     `;
   }).join('');
 
-  document.getElementById('roles-section').innerHTML = collapsible('2. Описание ролей и зон ответственности', `<div class="roles">${cards}</div>`, 4);
+  document.getElementById('roles-section').innerHTML = collapsible(
+    (D.ui?.panels?.roles) || '2. Описание ролей и зон ответственности',
+    `<div class="roles">${cards}</div>`,
+    4,
+    'ui.panels.roles'
+  );
 }
 
 function renderRaci() {
   const D = getData();
+  const ui = D.ui || {};
+  const headers = ui.raciHeaders || ['Зона', 'Head Telecom', 'Head CX', 'Head VAS', 'Platform', 'Product (P&L)'];
   const filtered = state.raciFilter === 'all'
     ? D.raci
     : D.raci.filter((r) =>
@@ -346,9 +394,11 @@ function renderRaci() {
     </tr>
   `).join('');
 
-  document.getElementById('raci-section').innerHTML = collapsible('Легенда RACI', `
+  document.getElementById('raci-section').innerHTML = collapsible(
+    ui.panels?.raci || 'Легенда RACI',
+    `
     <div class="raci-toolbar">
-      <span class="muted">R — исполняет · A — отвечает · C — консультирует · I — информируется</span>
+      <span class="muted"${editAttrs('ui.raciLegend', 'text')}>${ui.raciLegend || ''}</span>
       <select id="raci-filter">
         <option value="all">Все роли</option>
         <option value="R">R — Responsible</option>
@@ -358,16 +408,20 @@ function renderRaci() {
       </select>
     </div>
     <table>
-      <thead><tr><th>Зона</th><th>Head Telecom</th><th>Head CX</th><th>Head VAS</th><th>Platform</th><th>Product (P&L)</th></tr></thead>
+      <thead><tr>${headers.map((h, i) => `<th${editAttrs(`ui.raciHeaders.${i}`, 'text')}>${h}</th>`).join('')}</tr></thead>
       <tbody>${rows}</tbody>
     </table>
-  `, D.raci.length);
+  `,
+    D.raci.length,
+    'ui.panels.raci'
+  );
 
   const filter = document.getElementById('raci-filter');
   if (filter) filter.value = state.raciFilter;
 }
 
 function render() {
+  renderPageMeta();
   renderToolbar();
   renderStatusBar();
   renderBusiness();

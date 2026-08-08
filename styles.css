@@ -612,6 +612,30 @@ body.edit-mode [data-edit-path].edit-selected {
 
 .edit-add-raci { margin-bottom: 0.5rem; }
 
+.edit-block-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+
+.edit-add-section { margin-top: 0.35rem; }
+
+.sidebar-hint { margin-top: 0.5rem; font-size: 0.68rem; }
+
+body.edit-mode .page-header h1,
+body.edit-mode .page-header p {
+  outline: 1px dashed transparent;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+body.edit-mode .page-header h1:hover,
+body.edit-mode .page-header p:hover {
+  outline-color: #eab308;
+  background: rgba(254, 249, 195, 0.35);
+}
+
 .edit-toast {
   position: fixed;
   bottom: 1.25rem;
