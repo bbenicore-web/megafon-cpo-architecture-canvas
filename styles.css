@@ -191,6 +191,39 @@ button { font: inherit; cursor: pointer; }
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
 .leaders-row { margin-bottom: 0.35rem; }
 
+.business-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+@media (max-width: 720px) {
+  .business-split { grid-template-columns: 1fr; }
+}
+
+.business-leader-col {
+  padding: 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.business-leader-col-vitriny {
+  background: var(--purple-bg, #f5f3ff);
+  border-color: #c4b5fd;
+}
+
+.pill-btn-vitriny {
+  background: var(--purple, #7c3aed);
+}
+
+.business-leader-col .chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
 .arrow-hint.active, .muted.active { color: var(--green); font-weight: 600; }
 
 .domains { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }

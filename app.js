@@ -218,6 +218,10 @@ function renderPageMeta() {
   }
 }
 
+function cposForLeader(leaderId) {
+  return getData().cpoRoles.filter((c) => (c.leaderId || 'telecom-core') === leaderId);
+}
+
 function renderBusiness() {
   const el = document.getElementById('business-section');
   if (!isBlockVisible('business')) {
@@ -231,22 +235,33 @@ function renderBusiness() {
   const D = getData();
   const ui = D.ui || {};
   const biz = ui.business || {};
-  const leaders = D.businessLeaders.map((l) => {
-    const active = state.highlightedLeader === l.id;
-    return `<button type="button" class="pill-btn ${active ? 'active' : ''}" data-leader="${l.id}"${editAttrs(`businessLeaders.${l.id}.label`, 'text')}>${l.label}</button>`;
-  }).join('');
 
-  const cpos = D.cpoRoles.map((c) => {
+  const renderCpo = (c) => {
     const active = state.selectedCpo === c.id;
     return `<button type="button" class="${btnClass(active, false)} chip-btn" data-cpo="${c.id}"${editAttrs(`cpoRoles.${c.id}`, 'cpoRole')}>${c.label}</button>`;
+  };
+
+  const cols = D.businessLeaders.map((leader) => {
+    const cpos = cposForLeader(leader.id);
+    const isVitriny = leader.id === 'vitriny';
+    const hintKey = isVitriny ? 'vitrinyHint' : 'telecomHint';
+    const hintFallback = isVitriny ? '' : (biz.leadersHint || '');
+    const hintText = biz[hintKey] || hintFallback;
+    const hintPath = `ui.business.${hintKey}`;
+
+    return `
+      <div class="business-leader-col${isVitriny ? ' business-leader-col-vitriny' : ''}">
+        <button type="button" class="pill-btn${isVitriny ? ' pill-btn-vitriny' : ''} ${state.highlightedLeader === leader.id ? 'active' : ''}" data-leader="${leader.id}"${editAttrs(`businessLeaders.${leader.id}.label`, 'text')}>${leader.label}</button>
+        <p class="muted arrow-hint ${state.highlightedLeader === leader.id ? 'active' : ''}"${editAttrs(hintPath, 'text')}>${hintText}</p>
+        ${cpos.length ? `<p class="muted" style="margin-bottom:0.5rem"${editAttrs('ui.business.cpoSubtitle', 'text')}>${biz.cpoSubtitle || ''}</p>` : ''}
+        ${cpos.length ? `<div class="chips">${cpos.map(renderCpo).join('')}</div>` : ''}
+        ${cpos.length ? `<p class="muted ${state.selectedCpo ? 'active' : ''}" style="margin-top:0.75rem"${editAttrs('ui.business.cpoHint', 'text')}>${biz.cpoHint || ''}</p>` : ''}
+      </div>
+    `;
   }).join('');
 
   el.innerHTML = panel(ui.panels?.business || 'БИЗНЕС-ЗАКАЗЧИКИ', `
-    <div class="grid-2 leaders-row">${leaders}</div>
-    <p class="muted arrow-hint ${state.highlightedLeader === 'telecom-core' ? 'active' : ''}"${editAttrs('ui.business.leadersHint', 'text')}>${biz.leadersHint || ''}</p>
-    <p class="muted" style="margin-bottom:0.5rem"${editAttrs('ui.business.cpoSubtitle', 'text')}>${biz.cpoSubtitle || ''}</p>
-    <div class="chips">${cpos}</div>
-    <p class="muted ${state.selectedCpo ? 'active' : ''}" style="margin-top:0.75rem"${editAttrs('ui.business.cpoHint', 'text')}>${biz.cpoHint || ''}</p>
+    <div class="business-split">${cols}</div>
   `, 'ui.panels.business');
   markBlockElement(el, 'business');
 }

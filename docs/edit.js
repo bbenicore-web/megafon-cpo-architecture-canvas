@@ -151,11 +151,12 @@
         raci: 'Легенда RACI',
       },
       business: {
-        leadersHint: '↓ управляет CPO направлениями',
+        telecomHint: '↓ управляет CPO направлениями',
         cpoSubtitle: 'CPO продуктовых направлений',
         cpoHint: 'Запросы от CPO направлений → платформа Telecom',
+        vitrinyHint: '↓ CPO цифрового продукта (Личный кабинет и Сайт)',
       },
-      platformWhyText: 'Платформа даёт общие capabilities — каталоги, поиск, навигацию, профиль и сервисы — всем доменам.',
+      platformWhyText: 'Продуктовая платформа строится из сквозных, доменных и продуктовых capabilities. CX — delivery-зона сквозных capabilities; Telecom и Extra Products — доменные building blocks и клиентские сценарии.',
       digitalCpoBadge: 'Платформа',
       sidebarZonePrefix: 'ЗОНА · ',
       sidebarZoneHint: 'Наведите на колонку платформы или откройте блок «2. Описание ролей» ниже.',
@@ -166,8 +167,8 @@
     if (!D.ui.hiddenBlocks) D.ui.hiddenBlocks = [];
   }
 
-  function directionOptions() {
-    return getData().directions.map((d) => ({ value: d.id, label: d.label }));
+  function leaderOptions() {
+    return getData().businessLeaders.map((l) => ({ value: l.id, label: l.label }));
   }
 
   function entityIdFromPath(path) {
@@ -622,6 +623,7 @@
       html += fixField('Лидер', 'ef-label', leader?.label || '');
     } else if (type === 'cpoRole') {
       html += fixField('CPO', 'ef-label', val?.label || '');
+      html += fixSelect('Бизнес-лидер', 'ef-leaderId', val?.leaderId || 'telecom-core', leaderOptions());
       html += fixSelect('Домен', 'ef-domain', val?.domain || 'telecom', DOMAIN_OPTIONS);
       html += fixField('ID команд (через запятую)', 'ef-teamIds', (val?.teamIds || []).join(', '));
     } else if (type === 'team') {
@@ -701,6 +703,7 @@
         val.product = readField('ef-product');
       } else if (type === 'cpoRole') {
         val.label = readField('ef-label');
+        val.leaderId = readField('ef-leaderId');
         val.domain = readField('ef-domain');
         val.teamIds = readField('ef-teamIds').split(',').map((s) => s.trim()).filter(Boolean);
       } else if (type === 'team') {
@@ -904,7 +907,7 @@
       });
       wrap.querySelector('.edit-add-cpo').addEventListener('click', () => {
         const id = newId('cpo-');
-        getData().cpoRoles.push({ id, label: 'Новый CPO', domain: 'telecom', teamIds: [] });
+        getData().cpoRoles.push({ id, label: 'Новый CPO', leaderId: 'telecom-core', domain: 'telecom', teamIds: [] });
         saveDraft(true);
         render();
         openPanel(`cpoRoles.${id}`, 'cpoRole');
