@@ -338,6 +338,30 @@ function renderSidebar() {
   markBlockElement(right, 'sidebarRight');
 }
 
+function domainCellClass(d) {
+  const dimmed = isDomainDimmed(d.id);
+  const highlighted = state.hoveredDomain === d.id || (state.selectedCpo && cpoById(state.selectedCpo)?.domain === d.id);
+  return `${d.color}${dimmed ? ' dimmed' : ''}${highlighted ? ' highlighted' : ''}`;
+}
+
+function renderSectionBlock(d, s, si) {
+  const dimmed = isDomainDimmed(d.id);
+  const gridClass = s.kind === 'text' ? 'text-grid' : 'tile-grid';
+  const itemClass = s.kind === 'text' ? 'text-item' : 'tile';
+  return `
+    <div class="section-block domain-cell ${domainCellClass(d)}" data-section="${d.id}.${si}" data-domain="${d.id}"${editAttrs(`domains.${d.id}.sections.${si}`, 'section')}>
+      <h4${editAttrs(`domains.${d.id}.sections.${si}.title`, 'text')}>${s.title}</h4>
+      <div class="${gridClass}">
+        ${s.items.map((item) => {
+          const active = state.selectedTile === item.id;
+          return `<button type="button" class="${itemClass} ${active ? 'active' : ''}${dimmed ? ' dimmed' : ''}"
+            data-tile="${item.id}" title="${item.hint || item.label}"
+            ${editAttrs(`domains.${d.id}.sections.${si}.items.${item.id}`, 'tile')}>${item.label}</button>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
 function renderDomains() {
   const el = document.getElementById('domains-section');
   if (!isBlockVisible('domains')) {
@@ -349,33 +373,32 @@ function renderDomains() {
   el.hidden = false;
 
   const D = getData();
-  const html = D.domains.map((d) => {
-    const dimmed = isDomainDimmed(d.id);
-    const highlighted = state.hoveredDomain === d.id || (state.selectedCpo && cpoById(state.selectedCpo)?.domain === d.id);
-    return `
-      <article class="domain ${d.color}${dimmed ? ' dimmed' : ''}${highlighted ? ' highlighted' : ''}"
-        data-domain="${d.id}"${editAttrs(`domains.${d.id}`, 'domain')}>
-        <div class="domain-head"><strong${editAttrs(`domains.${d.id}.cpoTitle`, 'text')}>${d.cpoTitle}</strong><span${editAttrs(`domains.${d.id}.cpoSubtitle`, 'text')}>${d.cpoSubtitle}</span></div>
-        <div class="domain-head platform-head"><strong${editAttrs(`domains.${d.id}.platformTitle`, 'text')}>${d.platformTitle}</strong></div>
-        ${d.sections.map((s, si) => `
-          <div class="section-block" data-section="${d.id}.${si}"${editAttrs(`domains.${d.id}.sections.${si}`, 'section')}>
-            <h4${editAttrs(`domains.${d.id}.sections.${si}.title`, 'text')}>${s.title}</h4>
-            <div class="${s.kind === 'text' ? 'text-grid' : 'tile-grid'}">
-              ${s.items.map((item) => {
-                const active = state.selectedTile === item.id;
-                const cls = s.kind === 'text' ? 'text-item' : 'tile';
-                return `<button type="button" class="${cls} ${active ? 'active' : ''}${dimmed ? ' dimmed' : ''}"
-                  data-tile="${item.id}" title="${item.hint || item.label}"
-                  ${editAttrs(`domains.${d.id}.sections.${si}.items.${item.id}`, 'tile')}>${item.label}</button>`;
-              }).join('')}
-            </div>
-          </div>
-        `).join('')}
-      </article>
-    `;
-  }).join('');
+  const domains = D.domains;
+  const maxSections = Math.max(0, ...domains.map((d) => d.sections.length));
 
-  el.innerHTML = `<div class="domains">${html}</div>`;
+  const headCells = domains.map((d) => `
+    <article class="domain domain-head-cell domain-cell ${domainCellClass(d)}"
+      data-domain="${d.id}"${editAttrs(`domains.${d.id}`, 'domain')}>
+      <div class="domain-head"><strong${editAttrs(`domains.${d.id}.cpoTitle`, 'text')}>${d.cpoTitle}</strong><span${editAttrs(`domains.${d.id}.cpoSubtitle`, 'text')}>${d.cpoSubtitle}</span></div>
+      <div class="domain-head platform-head"><strong${editAttrs(`domains.${d.id}.platformTitle`, 'text')}>${d.platformTitle}</strong></div>
+    </article>`).join('');
+
+  const sectionCells = [];
+  for (let si = 0; si < maxSections; si += 1) {
+    for (const d of domains) {
+      const s = d.sections[si];
+      if (s) {
+        sectionCells.push(renderSectionBlock(d, s, si));
+      } else {
+        sectionCells.push(`<div class="section-block section-block--empty domain-cell ${domainCellClass(d)}" data-domain="${d.id}" aria-hidden="true"></div>`);
+      }
+    }
+  }
+
+  const footerCells = domains.map((d) => `
+    <div class="domain-footer domain-cell ${domainCellClass(d)}" data-domain="${d.id}"></div>`).join('');
+
+  el.innerHTML = `<div class="domains domains-sync">${headCells}${sectionCells.join('')}${footerCells}</div>`;
   markBlockElement(el, 'domains');
 }
 
