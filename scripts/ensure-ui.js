@@ -33,6 +33,7 @@ const DEFAULT_UI = {
   statusDefault: 'Кликните на элемент схемы или наведите на колонку платформы',
   raciLegend: 'R — исполняет · A — отвечает · C — консультирует · I — информируется',
   raciHeaders: ['Зона', 'Head Telecom', 'Head CX', 'Head VAS', 'Platform', 'Product (P&L)'],
+  hiddenBlocks: [],
 };
 
 function mergeUi(current) {

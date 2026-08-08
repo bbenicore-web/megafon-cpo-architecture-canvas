@@ -809,6 +809,7 @@ window.ARCH_DATA = {
       "Head VAS",
       "Platform",
       "Product (P&L)"
-    ]
+    ],
+    "hiddenBlocks": []
   }
 };

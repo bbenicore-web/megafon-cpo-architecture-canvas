@@ -2,9 +2,19 @@ function getData() {
   return window.ARCH_DATA;
 }
 
+function isBlockVisible(blockId) {
+  const hidden = getData().ui?.hiddenBlocks;
+  return !hidden || !hidden.includes(blockId);
+}
+
 function editAttrs(path, type) {
   if (!window.EDIT_MODE) return '';
   return ` data-edit-path="${path}" data-edit-type="${type}"`;
+}
+
+function blockAttrs(blockId) {
+  if (!window.EDIT_MODE) return '';
+  return editAttrs(`ui.blocks.${blockId}`, 'block');
 }
 
 const state = {
@@ -98,11 +108,12 @@ function resetSelection() {
   });
 }
 
-function panel(title, body, titlePath) {
+function panel(title, body, titlePath, blockId) {
   const titleEl = titlePath
     ? `<div class="panel-title"${editAttrs(titlePath, 'text')}>${title}</div>`
     : `<div class="panel-title">${title}</div>`;
-  return `<div class="panel-inner">${titleEl}<div class="panel-body">${body}</div></div>`;
+  const blockMark = blockId ? blockAttrs(blockId) : '';
+  return `<div class="panel-inner"${blockMark}>${titleEl}<div class="panel-body">${body}</div></div>`;
 }
 
 function collapsible(title, body, count, titlePath) {
@@ -111,6 +122,17 @@ function collapsible(title, body, count, titlePath) {
     ? `<summary class="panel-title collapsible-title"${editAttrs(titlePath, 'text')}>${title}${countBadge}</summary>`
     : `<summary class="panel-title collapsible-title">${title}${countBadge}</summary>`;
   return `${titleEl}<div class="panel-body">${body}</div>`;
+}
+
+function markBlockElement(el, blockId) {
+  if (!el) return;
+  if (window.EDIT_MODE) {
+    el.setAttribute('data-edit-path', `ui.blocks.${blockId}`);
+    el.setAttribute('data-edit-type', 'block');
+  } else {
+    el.removeAttribute('data-edit-path');
+    el.removeAttribute('data-edit-type');
+  }
 }
 
 function btnClass(active, dimmed) {
@@ -191,6 +213,14 @@ function renderPageMeta() {
 }
 
 function renderBusiness() {
+  const el = document.getElementById('business-section');
+  if (!isBlockVisible('business')) {
+    el.hidden = true;
+    el.innerHTML = '';
+    return;
+  }
+  el.hidden = false;
+
   const D = getData();
   const ui = D.ui || {};
   const biz = ui.business || {};
@@ -204,44 +234,74 @@ function renderBusiness() {
     return `<button type="button" class="${btnClass(active, false)} chip-btn" data-cpo="${c.id}"${editAttrs(`cpoRoles.${c.id}`, 'cpoRole')}>${c.label}</button>`;
   }).join('');
 
-  document.getElementById('business-section').innerHTML = panel(ui.panels?.business || 'БИЗНЕС-ЗАКАЗЧИКИ', `
+  el.innerHTML = panel(ui.panels?.business || 'БИЗНЕС-ЗАКАЗЧИКИ', `
     <div class="grid-2 leaders-row">${leaders}</div>
     <p class="muted arrow-hint ${state.highlightedLeader === 'telecom-core' ? 'active' : ''}"${editAttrs('ui.business.leadersHint', 'text')}>${biz.leadersHint || ''}</p>
     <p class="muted" style="margin-bottom:0.5rem"${editAttrs('ui.business.cpoSubtitle', 'text')}>${biz.cpoSubtitle || ''}</p>
     <div class="chips">${cpos}</div>
     <p class="muted ${state.selectedCpo ? 'active' : ''}" style="margin-top:0.75rem"${editAttrs('ui.business.cpoHint', 'text')}>${biz.cpoHint || ''}</p>
   `, 'ui.panels.business');
+  markBlockElement(el, 'business');
 }
 
 function renderDigitalCpo() {
+  const el = document.getElementById('digital-cpo');
+  if (!isBlockVisible('digitalCpo')) {
+    el.hidden = true;
+    el.innerHTML = '';
+    return;
+  }
+  el.hidden = false;
+
   const D = getData();
   const ui = D.ui || {};
   const vitriny = state.highlightedLeader === 'vitriny';
-  document.getElementById('digital-cpo').className = `banner${vitriny ? ' highlighted' : ''}`;
-  document.getElementById('digital-cpo').innerHTML = `
+  el.className = `banner${vitriny ? ' highlighted' : ''}`;
+  el.innerHTML = `
     <span${editAttrs('digitalCpoTitle', 'text')}>${D.digitalCpoTitle}</span>
     <small${editAttrs('ui.digitalCpoBadge', 'text')}>${ui.digitalCpoBadge || 'Платформа'}</small>
   `;
+  markBlockElement(el, 'digitalCpo');
 }
 
 function renderSidebar() {
   const D = getData();
   const ui = D.ui || {};
-  const metrics = D.metrics.map((m, i) => `
-    <div class="metric"${editAttrs(`metrics.${i}`, 'metric')}>
-      <strong>${m.label}</strong>
-      <p>${m.description}</p>
-    </div>
-  `).join('');
+  const left = document.getElementById('sidebar-left');
+  const showWhy = isBlockVisible('platformWhy');
+  const showMetrics = isBlockVisible('platformMetrics');
+  if (!showWhy && !showMetrics) {
+    left.hidden = true;
+    left.innerHTML = '';
+  } else {
+    left.hidden = false;
+    const metrics = D.metrics.map((m, i) => `
+      <div class="metric"${editAttrs(`metrics.${i}`, 'metric')}>
+        <strong>${m.label}</strong>
+        <p>${m.description}</p>
+      </div>
+    `).join('');
+    let html = '';
+    if (showWhy) {
+      html += panel(ui.panels?.platformWhy || 'ЗАЧЕМ ПЛАТФОРМА', `<p class="muted"${editAttrs('ui.platformWhyText', 'text')}>${ui.platformWhyText || ''}</p>`, 'ui.panels.platformWhy', 'platformWhy');
+    }
+    if (showMetrics) {
+      html += panel(ui.panels?.platformMetrics || 'СВЯЗЬ С БИЗНЕСОМ', metrics, 'ui.panels.platformMetrics', 'platformMetrics');
+    }
+    left.innerHTML = html;
+  }
 
-  document.getElementById('sidebar-left').innerHTML = `
-    ${panel(ui.panels?.platformWhy || 'ЗАЧЕМ ПЛАТФОРМА', `<p class="muted"${editAttrs('ui.platformWhyText', 'text')}>${ui.platformWhyText || ''}</p>`, 'ui.panels.platformWhy')}
-    ${panel(ui.panels?.platformMetrics || 'СВЯЗЬ С БИЗНЕСОМ', metrics, 'ui.panels.platformMetrics')}
-  `;
+  const right = document.getElementById('sidebar-right');
+  if (!isBlockVisible('sidebarRight')) {
+    right.hidden = true;
+    right.innerHTML = '';
+    return;
+  }
+  right.hidden = false;
 
   const zone = getSidebarZone();
   const zonePinned = isEditFrozen();
-  document.getElementById('sidebar-right').innerHTML = panel(
+  right.innerHTML = panel(
     `${ui.sidebarZonePrefix || 'ЗОНА · '}${zone.title.toUpperCase()}${zonePinned ? ' 📌' : ''}`,
     `<div class="sidebar-zone-body"${editAttrs(`roleZones.${zone.id}`, 'roleZone')}>
       <p class="muted">${zone.ownership}</p>
@@ -251,9 +311,18 @@ function renderSidebar() {
     <p class="muted sidebar-hint"${editAttrs('ui.sidebarZoneHint', 'text')}>${zonePinned ? 'Зона закреплена — можно редактировать' : (ui.sidebarZoneHint || '')}</p>`,
     null
   );
+  markBlockElement(right, 'sidebarRight');
 }
 
 function renderDomains() {
+  const el = document.getElementById('domains-section');
+  if (!isBlockVisible('domains')) {
+    el.hidden = true;
+    el.innerHTML = '';
+    return;
+  }
+  el.hidden = false;
+
   const D = getData();
   const html = D.domains.map((d) => {
     const dimmed = isDomainDimmed(d.id);
@@ -281,14 +350,23 @@ function renderDomains() {
     `;
   }).join('');
 
-  document.getElementById('domains-section').innerHTML = `<div class="domains">${html}</div>`;
+  el.innerHTML = `<div class="domains">${html}</div>`;
+  markBlockElement(el, 'domains');
 }
 
 function renderIntegration() {
+  const el = document.getElementById('integration-section');
+  if (!isBlockVisible('integration')) {
+    el.hidden = true;
+    el.innerHTML = '';
+    return;
+  }
+  el.hidden = false;
+
   const D = getData();
   const ui = D.ui || {};
   const dimmed = isIntegrationDimmed();
-  document.getElementById('integration-section').innerHTML = panel(
+  el.innerHTML = panel(
     ui.panels?.integration || 'ИНТЕГРАЦИЯ И ВЗАИМОДЕЙСТВИЕ ПЛАТФОРМ',
     `<div class="integration-grid${dimmed ? ' dimmed' : ''}">
       ${D.integration.map((i) => {
@@ -299,9 +377,18 @@ function renderIntegration() {
     </div>`,
     'ui.panels.integration'
   );
+  markBlockElement(el, 'integration');
 }
 
 function renderTeams() {
+  const el = document.getElementById('teams-section');
+  if (!isBlockVisible('teams')) {
+    el.hidden = true;
+    el.innerHTML = '';
+    return;
+  }
+  el.hidden = false;
+
   const D = getData();
   const ui = D.ui || {};
   const showTeams = isEditFrozen() || state.hoveredDomain === 'telecom' || state.selectedCpo !== null;
@@ -325,14 +412,23 @@ function renderTeams() {
     `;
   }).join('');
 
-  document.getElementById('teams-section').innerHTML = panel(
+  el.innerHTML = panel(
     ui.panels?.teams || 'КОМАНДА ТЕЛЕКОМ ПЛАТФОРМЫ',
     `<div class="directions${showTeams ? '' : ' muted-section'}">${dirs}</div>`,
     'ui.panels.teams'
   );
+  markBlockElement(el, 'teams');
 }
 
 function renderFlow() {
+  const el = document.getElementById('flow-section');
+  if (!isBlockVisible('flow')) {
+    el.hidden = true;
+    el.innerHTML = '';
+    return;
+  }
+  el.hidden = false;
+
   const D = getData();
   const cards = D.flowSteps.map((step, idx) => {
     const active = state.selectedFlowStep === step.id;
@@ -347,15 +443,24 @@ function renderFlow() {
     `;
   }).join('');
 
-  document.getElementById('flow-section').innerHTML = collapsible(
+  el.innerHTML = collapsible(
     (D.ui?.panels?.flow) || '1. Модель взаимодействия',
     `<div class="flow">${cards}</div>`,
     null,
     'ui.panels.flow'
   );
+  markBlockElement(el, 'flow');
 }
 
 function renderRoles() {
+  const el = document.getElementById('roles-section');
+  if (!isBlockVisible('roles')) {
+    el.hidden = true;
+    el.innerHTML = '';
+    return;
+  }
+  el.hidden = false;
+
   const D = getData();
   const cards = D.roleZones.map((z) => {
     const active = state.selectedRoleZone === z.id;
@@ -373,15 +478,24 @@ function renderRoles() {
     `;
   }).join('');
 
-  document.getElementById('roles-section').innerHTML = collapsible(
+  el.innerHTML = collapsible(
     (D.ui?.panels?.roles) || '2. Описание ролей и зон ответственности',
     `<div class="roles">${cards}</div>`,
     4,
     'ui.panels.roles'
   );
+  markBlockElement(el, 'roles');
 }
 
 function renderRaci() {
+  const el = document.getElementById('raci-section');
+  if (!isBlockVisible('raci')) {
+    el.hidden = true;
+    el.innerHTML = '';
+    return;
+  }
+  el.hidden = false;
+
   const D = getData();
   const ui = D.ui || {};
   const headers = ui.raciHeaders || ['Зона', 'Head Telecom', 'Head CX', 'Head VAS', 'Platform', 'Product (P&L)'];
@@ -406,7 +520,7 @@ function renderRaci() {
     </tr>
   `).join('');
 
-  document.getElementById('raci-section').innerHTML = collapsible(
+  el.innerHTML = collapsible(
     ui.panels?.raci || 'Легенда RACI',
     `
     <div class="raci-toolbar">
@@ -427,6 +541,7 @@ function renderRaci() {
     D.raci.length,
     'ui.panels.raci'
   );
+  markBlockElement(el, 'raci');
 
   const filter = document.getElementById('raci-filter');
   if (filter) filter.value = state.raciFilter;
@@ -526,4 +641,4 @@ if (!window.ARCH_DATA) {
   render();
 }
 
-window.ArchApp = { getData, render, state, setState, resetSelection };
+window.ArchApp = { getData, render, state, setState, resetSelection, isBlockVisible };
