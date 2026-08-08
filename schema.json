@@ -1,4 +1,4 @@
-window.ARCH_DATA = {
+{
   "digitalCpoTitle": "CPO Цифровой продукт МегаФона (Личный кабинет и Сайт)",
   "businessLeaders": [
     {
@@ -778,4 +778,4 @@ window.ARCH_DATA = {
       "product": "I"
     }
   ]
-};
+}
