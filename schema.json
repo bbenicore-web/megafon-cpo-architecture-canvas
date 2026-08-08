@@ -15,6 +15,7 @@
       "id": "cpo-main",
       "label": "CPO основная линейка",
       "domain": "telecom",
+      "leaderId": "telecom-core",
       "teamIds": [
         "tariffs"
       ]
@@ -23,6 +24,7 @@
       "id": "cpo-persona",
       "label": "CPO — Персона",
       "domain": "telecom",
+      "leaderId": "telecom-core",
       "teamIds": [
         "persona"
       ]
@@ -31,6 +33,7 @@
       "id": "cpo-mnp",
       "label": "CPO — MNP, клоны, SIM",
       "domain": "telecom",
+      "leaderId": "telecom-core",
       "teamIds": [
         "subscriber"
       ]
@@ -39,6 +42,7 @@
       "id": "cpo-megainternet",
       "label": "CPO — МегаИнтернет",
       "domain": "telecom",
+      "leaderId": "telecom-core",
       "teamIds": [
         "mega-internet"
       ]
@@ -47,6 +51,7 @@
       "id": "cpo-home",
       "label": "CPO — Доминтернет",
       "domain": "telecom",
+      "leaderId": "telecom-core",
       "teamIds": [
         "home-internet"
       ]
@@ -55,6 +60,7 @@
       "id": "cpo-monetization",
       "label": "CPO — Монетизация",
       "domain": "telecom",
+      "leaderId": "telecom-core",
       "teamIds": [
         "monetization"
       ]
@@ -878,9 +884,10 @@
       "raci": "Легенда RACI"
     },
     "business": {
-      "leadersHint": "↓ управляет CPO направлениями",
+      "telecomHint": "↓ управляет CPO направлениями",
       "cpoSubtitle": "CPO продуктовых направлений",
-      "cpoHint": "Запросы от CPO направлений → платформа Telecom"
+      "cpoHint": "Запросы от CPO направлений → платформа Telecom",
+      "vitrinyHint": "↓ CPO цифрового продукта (Личный кабинет и Сайт)"
     },
     "platformWhyText": "Продуктовая платформа строится из сквозных, доменных и продуктовых capabilities. CX delivery-зона сквозных capabilities; Telecom и Extra Products — доменные building blocks и клиентские сценарии.",
     "digitalCpoBadge": "Платформа",

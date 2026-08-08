@@ -22,8 +22,10 @@ const DEFAULT_UI = {
   },
   business: {
     leadersHint: '↓ управляет CPO направлениями',
+    telecomHint: '↓ управляет CPO направлениями',
     cpoSubtitle: 'CPO продуктовых направлений',
     cpoHint: 'Запросы от CPO направлений → платформа Telecom',
+    vitrinyHint: '↓ CPO цифрового продукта (Личный кабинет и Сайт)',
   },
   platformWhyText:
     'Продуктовая платформа строится из сквозных, доменных и продуктовых capabilities. CX — delivery-зона сквозных capabilities; Telecom и Extra Products — доменные building blocks и клиентские сценарии.',
