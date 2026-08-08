@@ -26,7 +26,7 @@ const DEFAULT_UI = {
     cpoHint: 'Запросы от CPO направлений → платформа Telecom',
   },
   platformWhyText:
-    'Платформа даёт общие capabilities — каталоги, поиск, навигацию, профиль и сервисы — всем доменам. Новые продукты запускаются быстрее и выглядят единообразно.',
+    'Продуктовая платформа строится из сквозных, доменных и продуктовых capabilities. CX — delivery-зона сквозных capabilities; Telecom и Extra Products — доменные building blocks и клиентские сценарии.',
   digitalCpoBadge: 'Платформа',
   sidebarZonePrefix: 'ЗОНА · ',
   sidebarZoneHint: 'Наведите на колонку платформы или откройте блок «2. Описание ролей» ниже.',
