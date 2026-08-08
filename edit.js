@@ -5,6 +5,27 @@
   const { render, getData } = window.ArchApp;
 
   let selectedPath = null;
+  let selectedType = null;
+
+  function resolveSegment(cur, part) {
+    if (cur == null) return undefined;
+    if (Array.isArray(cur)) {
+      if (/^\d+$/.test(part)) return cur[Number(part)];
+      const byId = cur.find((item) => item && item.id === part);
+      if (byId) return byId;
+    }
+    return cur[part];
+  }
+
+  function getParentAndKey(path) {
+    const parts = path.split('.');
+    let cur = getData();
+    for (let i = 0; i < parts.length - 1; i++) {
+      cur = resolveSegment(cur, parts[i]);
+      if (cur == null) return { parent: null, key: parts[parts.length - 1] };
+    }
+    return { parent: cur, key: parts[parts.length - 1] };
+  }
 
   function cloneData(data) {
     return JSON.parse(JSON.stringify(data));
@@ -18,9 +39,9 @@
     return null;
   }
 
-  function saveDraft() {
+  function saveDraft(silent) {
     localStorage.setItem(DRAFT_KEY, JSON.stringify(getData()));
-    showToast('Черновик сохранён локально');
+    if (!silent) showToast('Черновик сохранён локально');
   }
 
   function clearDraft() {
@@ -31,33 +52,21 @@
     const parts = path.split('.');
     let cur = getData();
     for (const part of parts) {
+      cur = resolveSegment(cur, part);
       if (cur == null) return undefined;
-      if (Array.isArray(cur) && /^\d+$/.test(part)) {
-        cur = cur[Number(part)];
-      } else {
-        cur = cur[part];
-      }
     }
     return cur;
   }
 
   function setByPath(path, value) {
-    const parts = path.split('.');
-    let cur = getData();
-    for (let i = 0; i < parts.length - 1; i++) {
-      const part = parts[i];
-      if (Array.isArray(cur) && /^\d+$/.test(part)) {
-        cur = cur[Number(part)];
-      } else {
-        cur = cur[part];
-      }
+    const { parent, key } = getParentAndKey(path);
+    if (parent == null) return false;
+    if (Array.isArray(parent) && /^\d+$/.test(key)) {
+      parent[Number(key)] = value;
+      return true;
     }
-    const last = parts[parts.length - 1];
-    if (Array.isArray(cur) && /^\d+$/.test(last)) {
-      cur[Number(last)] = value;
-    } else {
-      cur[last] = value;
-    }
+    parent[key] = value;
+    return true;
   }
 
   function deleteByPath(path) {
@@ -67,8 +76,7 @@
       const id = parts[parts.length - 1];
       let cur = getData();
       for (let i = 0; i < parts.length - 2; i++) {
-        const part = parts[i];
-        cur = Array.isArray(cur) && /^\d+$/.test(part) ? cur[Number(part)] : cur[part];
+        cur = resolveSegment(cur, parts[i]);
       }
       cur.items = cur.items.filter((item) => item.id !== id);
       return;
@@ -86,14 +94,10 @@
       return;
     }
 
-    const last = parts[parts.length - 1];
-    let cur = getData();
-    for (let i = 0; i < parts.length - 1; i++) {
-      const part = parts[i];
-      cur = Array.isArray(cur) && /^\d+$/.test(part) ? cur[Number(part)] : cur[part];
-    }
-    if (Array.isArray(cur) && /^\d+$/.test(last)) {
-      cur.splice(Number(last), 1);
+    const { parent, key } = getParentAndKey(path);
+    if (parent == null) return;
+    if (Array.isArray(parent) && /^\d+$/.test(key)) {
+      parent.splice(Number(key), 1);
     }
   }
 
@@ -210,11 +214,13 @@
   function closePanel() {
     document.getElementById('edit-panel').classList.add('hidden');
     selectedPath = null;
+    selectedType = null;
     document.querySelectorAll('[data-edit-path].edit-selected').forEach((el) => el.classList.remove('edit-selected'));
   }
 
   function openPanel(path, type) {
     selectedPath = path;
+    selectedType = type;
     document.querySelectorAll('[data-edit-path].edit-selected').forEach((el) => el.classList.remove('edit-selected'));
     const el = document.querySelector(`[data-edit-path="${CSS.escape(path)}"]`);
     if (el) {
@@ -295,42 +301,64 @@
     body.innerHTML = html;
   }
 
+  function readField(id) {
+    const el = document.getElementById(id);
+    return el ? el.value : '';
+  }
+
   function applyPanel() {
-    if (!selectedPath) return;
-    const type = document.querySelector(`[data-edit-path="${CSS.escape(selectedPath)}"]`)?.dataset.editType;
+    if (!selectedPath || !selectedType) return;
+
+    const type = selectedType;
     const val = getByPath(selectedPath);
 
-    if (type === 'text') {
-      setByPath(selectedPath, document.getElementById('ef-label').value);
-    } else if (type === 'tile') {
-      val.label = document.getElementById('ef-label').value;
-      val.hint = document.getElementById('ef-hint').value;
-    } else if (type === 'metric') {
-      val.label = document.getElementById('ef-label').value;
-      val.description = document.getElementById('ef-description').value;
-    } else if (type === 'flowStep') {
-      val.title = document.getElementById('ef-title').value;
-      val.subtitle = document.getElementById('ef-subtitle').value;
-      val.items = document.getElementById('ef-items').value.split('\n').map((s) => s.trim()).filter(Boolean);
-    } else if (type === 'roleZone') {
-      val.title = document.getElementById('ef-title').value;
-      val.subtitle = document.getElementById('ef-subtitle').value;
-      val.ownership = document.getElementById('ef-ownership').value;
-      val.responsibilities = document.getElementById('ef-resp').value.split('\n').map((s) => s.trim()).filter(Boolean);
-      val.kpis = document.getElementById('ef-kpis').value;
-    } else if (type === 'raciRow') {
-      val.area = document.getElementById('ef-area').value;
-      val.telecom = document.getElementById('ef-telecom').value;
-      val.cx = document.getElementById('ef-cx').value;
-      val.vas = document.getElementById('ef-vas').value;
-      val.platform = document.getElementById('ef-platform').value;
-      val.product = document.getElementById('ef-product').value;
+    if (val == null && type !== 'text') {
+      showToast('Ошибка: элемент не найден');
+      return;
     }
 
-    saveDraft();
-    render();
-    showToast('Изменения применены');
-    openPanel(selectedPath, type);
+    try {
+      if (type === 'text') {
+        if (!setByPath(selectedPath, readField('ef-label'))) {
+          showToast('Ошибка: не удалось сохранить');
+          return;
+        }
+      } else if (type === 'tile') {
+        val.label = readField('ef-label');
+        val.hint = readField('ef-hint');
+      } else if (type === 'metric') {
+        val.label = readField('ef-label');
+        val.description = readField('ef-description');
+      } else if (type === 'flowStep') {
+        val.title = readField('ef-title');
+        val.subtitle = readField('ef-subtitle');
+        val.items = readField('ef-items').split('\n').map((s) => s.trim()).filter(Boolean);
+      } else if (type === 'roleZone') {
+        val.title = readField('ef-title');
+        val.subtitle = readField('ef-subtitle');
+        val.ownership = readField('ef-ownership');
+        val.responsibilities = readField('ef-resp').split('\n').map((s) => s.trim()).filter(Boolean);
+        val.kpis = readField('ef-kpis');
+      } else if (type === 'raciRow') {
+        val.area = readField('ef-area');
+        val.telecom = readField('ef-telecom');
+        val.cx = readField('ef-cx');
+        val.vas = readField('ef-vas');
+        val.platform = readField('ef-platform');
+        val.product = readField('ef-product');
+      } else {
+        showToast('Ошибка: неизвестный тип элемента');
+        return;
+      }
+
+      saveDraft(true);
+      render();
+      showToast('Изменения применены');
+      openPanel(selectedPath, type);
+    } catch (err) {
+      console.error(err);
+      showToast('Ошибка при сохранении');
+    }
   }
 
   function deleteCurrent() {
