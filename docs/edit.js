@@ -460,13 +460,14 @@
 
   function injectZonePin() {
     const sidebar = document.getElementById('sidebar-right');
-    if (!sidebar) return;
+    if (!sidebar || !isBlockVisible('sidebarRight')) return;
+    const inner = sidebar.querySelector('.panel-inner');
+    if (!inner) return;
 
     let pin = sidebar.querySelector('.edit-zone-pin');
     if (!pin) {
       pin = document.createElement('div');
       pin.className = 'edit-zone-pin';
-      const inner = sidebar.querySelector('.panel-inner') || sidebar;
       inner.insertBefore(pin, inner.firstChild);
     }
 
@@ -747,10 +748,13 @@
   }
 
   function injectBlockActions() {
+    document.querySelectorAll('.edit-block-del').forEach((btn) => btn.remove());
+    document.querySelectorAll('.edit-block-head').forEach((head) => head.remove());
+
     Object.keys(PAGE_BLOCKS).forEach((blockId) => {
       if (!isBlockVisible(blockId)) return;
       const el = document.querySelector(`[data-edit-path="ui.blocks.${blockId}"]`);
-      if (!el || el.querySelector('.edit-block-del')) return;
+      if (!el) return;
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'edit-block-del edit-del-btn';
@@ -825,6 +829,13 @@
     });
   }
 
+  function appendPanelAction(sectionEl, blockId, fn) {
+    if (!sectionEl || !isBlockVisible(blockId)) return;
+    const body = sectionEl.querySelector('.panel-body');
+    if (!body) return;
+    fn(body);
+  }
+
   function injectAddButtons() {
     injectSectionActions();
     document.querySelectorAll('.section-block[data-section]').forEach((block) => {
@@ -846,7 +857,7 @@
     });
 
     const intSection = document.getElementById('integration-section');
-    if (intSection && !intSection.querySelector('.edit-add-btn')) {
+    if (intSection && isBlockVisible('integration') && !intSection.querySelector('.edit-add-btn')) {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'edit-add-btn';
@@ -858,11 +869,11 @@
         render();
         openPanel(`integration.${id}`, 'tile');
       });
-      intSection.querySelector('.panel-body').appendChild(btn);
+      appendPanelAction(intSection, 'integration', (body) => body.appendChild(btn));
     }
 
     const raciSection = document.getElementById('raci-section');
-    if (raciSection && !raciSection.querySelector('.edit-add-raci')) {
+    if (raciSection && isBlockVisible('raci') && !raciSection.querySelector('.edit-add-raci')) {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'edit-add-btn edit-add-raci';
@@ -873,11 +884,11 @@
         render();
         openPanel(`raci.${getData().raci.length - 1}`, 'raciRow');
       });
-      raciSection.querySelector('.panel-body').prepend(btn);
+      appendPanelAction(raciSection, 'raci', (body) => body.prepend(btn));
     }
 
     const businessSection = document.getElementById('business-section');
-    if (businessSection && !businessSection.querySelector('.edit-add-leader')) {
+    if (businessSection && isBlockVisible('business') && !businessSection.querySelector('.edit-add-leader')) {
       const wrap = document.createElement('div');
       wrap.className = 'edit-block-actions';
       wrap.innerHTML = `
@@ -898,10 +909,12 @@
         render();
         openPanel(`cpoRoles.${id}`, 'cpoRole');
       });
-      businessSection.querySelector('.panel-body').appendChild(wrap);
+      businessSection.querySelector('.panel-body')?.appendChild(wrap);
     }
 
-    const metricsPanel = document.querySelector('#sidebar-left .panel-inner:nth-child(2) .panel-body');
+    const metricsPanel = isBlockVisible('platformMetrics')
+      ? document.querySelector('#sidebar-left .panel-inner:nth-child(2) .panel-body')
+      : null;
     if (metricsPanel && !metricsPanel.querySelector('.edit-add-metric')) {
       const btn = document.createElement('button');
       btn.type = 'button';
@@ -917,7 +930,7 @@
     }
 
     const flowSection = document.getElementById('flow-section');
-    if (flowSection && !flowSection.querySelector('.edit-add-flow')) {
+    if (flowSection && isBlockVisible('flow') && !flowSection.querySelector('.edit-add-flow')) {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'edit-add-btn edit-add-flow';
@@ -929,11 +942,11 @@
         render();
         openPanel(`flowSteps.${id}`, 'flowStep');
       });
-      flowSection.querySelector('.panel-body').appendChild(btn);
+      appendPanelAction(flowSection, 'flow', (body) => body.appendChild(btn));
     }
 
     const rolesSection = document.getElementById('roles-section');
-    if (rolesSection && !rolesSection.querySelector('.edit-add-role')) {
+    if (rolesSection && isBlockVisible('roles') && !rolesSection.querySelector('.edit-add-role')) {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'edit-add-btn edit-add-role';
@@ -947,11 +960,11 @@
         render();
         openPanel(`roleZones.${id}`, 'roleZone');
       });
-      rolesSection.querySelector('.panel-body').appendChild(btn);
+      appendPanelAction(rolesSection, 'roles', (body) => body.appendChild(btn));
     }
 
     const teamsSection = document.getElementById('teams-section');
-    if (teamsSection && !teamsSection.querySelector('.edit-add-team')) {
+    if (teamsSection && isBlockVisible('teams') && !teamsSection.querySelector('.edit-add-team')) {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'edit-add-btn edit-add-team';
@@ -963,10 +976,11 @@
         render();
         openPanel(`teams.${id}`, 'team');
       });
-      teamsSection.querySelector('.panel-body').appendChild(btn);
+      appendPanelAction(teamsSection, 'teams', (body) => body.appendChild(btn));
     }
 
     document.querySelectorAll('[data-domain]').forEach((article) => {
+      if (!isBlockVisible('domains')) return;
       if (article.querySelector('.edit-add-section')) return;
       const domainId = article.dataset.domain;
       const btn = document.createElement('button');
@@ -1031,8 +1045,8 @@
   window.ArchEditor = {
     afterRender() {
       injectZonePin();
-      injectAddButtons();
       injectBlockActions();
+      injectAddButtons();
     },
   };
 
