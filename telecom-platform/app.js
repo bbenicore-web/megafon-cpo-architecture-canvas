@@ -234,7 +234,7 @@ function renderCore(D) {
             <div class="layer-head">
               <span class="layer-num">${escapeHtml(layer.number)}.</span>
               <strong${editAttrs(`center.layers.${layer.id}.title`, 'text')}>${escapeHtml(layer.title)}</strong>
-              <span class="layer-en"${editAttrs(`center.layers.${layer.id}.enTitle`, 'text')}>(${escapeHtml(layer.enTitle)})</span>
+              ${layer.enTitle ? `<span class="layer-en"${editAttrs(`center.layers.${layer.id}.enTitle`, 'text')}>(${escapeHtml(layer.enTitle)})</span>` : ''}
             </div>
             ${renderLayerBody(layer)}
           </section>
@@ -291,7 +291,7 @@ function statusText() {
   }
   if (state.selectedCap) {
     const item = layerById('capabilities')?.items.find((i) => i.id === state.selectedCap);
-    return item ? `Capability: ${item.label}` : D.ui.statusDefault;
+    return item ? `Возможность: ${item.label}` : D.ui.statusDefault;
   }
   if (state.selectedChannel) {
     const item = layerById('channels')?.items.find((i) => i.id === state.selectedChannel);
