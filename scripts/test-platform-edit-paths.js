@@ -112,4 +112,20 @@ if (discovery[0].includes("'app'") || discovery[0].includes("'cards'")) {
   process.exit(1);
 }
 console.log('OK discovery selects search, study, catalog, navigation, site, account');
+const sales = appSrc.match(/sales:\s*\{[^}]+\}/);
+if (!sales) {
+  console.log('FAIL sales relation missing');
+  process.exit(1);
+}
+for (const id of ['j3', 'pay', 'web', 'lk']) {
+  if (!sales[0].includes(`'${id}'`)) {
+    console.log('FAIL sales missing', id);
+    process.exit(1);
+  }
+}
+if (sales[0].includes("'app'") || sales[0].includes("'cart'") || sales[0].includes("'cat'")) {
+  console.log('FAIL sales includes an unrelated item');
+  process.exit(1);
+}
+console.log('OK sales selects checkout, payment, site, account');
 console.log('All platform data path tests passed');
