@@ -51,7 +51,7 @@ function icon(name, cls) {
 
 const RELATED = {
   discovery: { journeys: ['j1', 'j2'], caps: ['cat', 'nav'], channels: ['web', 'lk'] },
-  sales: { journeys: ['j3'], caps: ['pay'], channels: ['web', 'lk'] },
+  sales: { journeys: ['j3'], caps: ['cart', 'pay'], channels: ['web', 'lk'] },
   activation: { caps: ['kyc', 'int', 'pay'], channels: ['lk'] },
   self: { caps: ['nav', 'int', 'an'], channels: ['lk'] },
   postsale: { caps: ['int', 'an', 'pers'], channels: ['lk', 'bot'] },

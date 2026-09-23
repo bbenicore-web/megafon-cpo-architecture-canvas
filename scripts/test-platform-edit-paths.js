@@ -117,13 +117,13 @@ if (!sales) {
   console.log('FAIL sales relation missing');
   process.exit(1);
 }
-for (const id of ['j3', 'pay', 'web', 'lk']) {
+for (const id of ['j3', 'cart', 'pay', 'web', 'lk']) {
   if (!sales[0].includes(`'${id}'`)) {
     console.log('FAIL sales missing', id);
     process.exit(1);
   }
 }
-if (sales[0].includes("'app'") || sales[0].includes("'cart'") || sales[0].includes("'cat'")) {
+if (sales[0].includes("'app'") || sales[0].includes("'cat'")) {
   console.log('FAIL sales includes an unrelated item');
   process.exit(1);
 }
