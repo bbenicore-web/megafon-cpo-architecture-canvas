@@ -128,4 +128,11 @@ if (sales[0].includes("'app'") || sales[0].includes("'cat'")) {
   process.exit(1);
 }
 console.log('OK sales selects checkout, payment, site, account');
+for (const id of ['activation:', 'self:', 'postsale:']) {
+  if (appSrc.includes(`${id} {`)) {
+    console.log('FAIL highlight still defined for', id);
+    process.exit(1);
+  }
+}
+console.log('OK activation, self-service and post-sale do not highlight');
 console.log('All platform data path tests passed');
