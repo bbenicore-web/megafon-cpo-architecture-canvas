@@ -101,13 +101,13 @@ if (!discovery) {
   console.log('FAIL discovery relation missing');
   process.exit(1);
 }
-for (const id of ['j1', 'j2', 'cat', 'nav', 'web', 'lk']) {
+for (const id of ['j1', 'j2', 'cat', 'nav', 'cards', 'web', 'lk']) {
   if (!discovery[0].includes(`'${id}'`)) {
     console.log('FAIL discovery missing', id);
     process.exit(1);
   }
 }
-if (discovery[0].includes("'app'") || discovery[0].includes("'cards'")) {
+if (discovery[0].includes("'app'")) {
   console.log('FAIL discovery includes an unrelated item');
   process.exit(1);
 }

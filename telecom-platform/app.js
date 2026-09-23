@@ -50,7 +50,7 @@ function icon(name, cls) {
 }
 
 const RELATED = {
-  discovery: { journeys: ['j1', 'j2'], caps: ['cat', 'nav'], channels: ['web', 'lk'] },
+  discovery: { journeys: ['j1', 'j2'], caps: ['cat', 'nav', 'cards'], channels: ['web', 'lk'] },
   sales: { journeys: ['j3'], caps: ['cart', 'pay'], channels: ['web', 'lk'] },
 };
 
