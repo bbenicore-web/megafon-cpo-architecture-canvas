@@ -44,6 +44,14 @@ button { font: inherit; cursor: pointer; }
   flex-wrap: wrap;
 }
 
+.schema-switch {
+  font-size: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.schema-switch a { color: var(--blue); text-decoration: none; }
+.schema-switch a:hover { text-decoration: underline; }
+
 .page-header h1 { font-size: 1.35rem; font-weight: 700; }
 .page-header p { color: var(--muted); font-size: 0.875rem; margin-top: 0.25rem; }
 

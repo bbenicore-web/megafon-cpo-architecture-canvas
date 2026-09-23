@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Telecom Digital Platform</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="page-header">
+    <div class="header-row">
+      <div>
+        <p class="schema-switch"><a href="../index.html">← CPO Architecture</a></p>
+        <h1 id="page-title"></h1>
+        <p id="page-subtitle"></p>
+      </div>
+      <div class="toolbar" id="toolbar"></div>
+    </div>
+    <div class="status-bar" id="status-bar"></div>
+  </header>
+
+  <main class="page" id="diagram"></main>
+
+  <script src="data.js"></script>
+  <script>window.EDIT_MODE = new URLSearchParams(location.search).has('edit');</script>
+  <script src="app.js"></script>
+  <script src="edit.js"></script>
+</body>
+</html>

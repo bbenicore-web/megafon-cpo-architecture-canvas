@@ -7,6 +7,7 @@
 1. Клонируйте репозиторий.
 2. Откройте папку проекта в Cursor.
 3. Откройте файл [canvases/megafon-cpo-architecture.canvas.tsx](canvases/megafon-cpo-architecture.canvas.tsx) — Canvas откроется рядом с чатом.
+4. Вторая схема: [canvases/telecom-digital-platform.canvas.tsx](canvases/telecom-digital-platform.canvas.tsx).
 
 ## Содержание схемы
 
@@ -37,8 +38,9 @@ chmod +x scripts/publish-github.sh
 
 Интерактивная версия схемы публикуется автоматически при push в `main` из корня репозитория (`index.html`, `app.js`, `data.js`, `styles.css`).
 
-- Сайт: **https://bbenicore-web.github.io/megafon-cpo-architecture-canvas/**
-- Workflow: `.github/workflows/pages.yml` (копирует корневые файлы в `_site` и деплоит через GitHub Actions)
+- CPO-схема: **https://bbenicore-web.github.io/megafon-cpo-architecture-canvas/**
+- Telecom Digital Platform: **https://bbenicore-web.github.io/megafon-cpo-architecture-canvas/telecom-platform/**
+- Workflow: `.github/workflows/pages.yml` (копирует корневые файлы и `telecom-platform/` в `_site` и деплоит через GitHub Actions)
 
 **Интерактивность на Pages:**
 - режим фокуса и подсветка колонок платформ
@@ -48,6 +50,17 @@ chmod +x scripts/publish-github.sh
 - выбор шагов модели взаимодействия и зон ответственности
 
 Полная версия с Cursor Canvas — `canvases/megafon-cpo-architecture.canvas.tsx`.
+
+## Telecom Digital Platform
+
+Отдельная схема ценности и слоёв цифровой телеком-платформы (бизнес → платформа → клиент, домены, journeys, capabilities, каналы, метрики).
+
+- Страница: `telecom-platform/index.html`
+- WYSIWYG: `telecom-platform/index.html?edit=1` или [Pages с `?edit=1`](https://bbenicore-web.github.io/megafon-cpo-architecture-canvas/telecom-platform/?edit=1)
+- Данные: `telecom-platform/data.js`
+- Canvas: `canvases/telecom-digital-platform.canvas.tsx`
+
+Редактор тот же по смыслу: клик по элементу, панель справа, черновик в localStorage, экспорт `data.js`.
 
 ## WYSIWYG-редактор
 
