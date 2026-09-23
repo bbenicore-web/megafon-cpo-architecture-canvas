@@ -70,8 +70,8 @@ chmod +x scripts/publish-github.sh
 Схему можно редактировать визуально в браузере — без правки кода.
 
 1. Откройте страницу с параметром **`?edit=1`**:
-   - локально: `index.html?edit=1`
-   - на GitHub Pages: `https://bbenicore-web.github.io/megafon-cpo-architecture-canvas/?edit=1`
+   - локально: `cpo/index.html?edit=1`
+   - на GitHub Pages: `https://bbenicore-web.github.io/megafon-cpo-architecture-canvas/cpo/?edit=1`
 2. **Кликните** на любой элемент схемы — справа откроется панель редактирования.
 3. **Sidebar «ЗОНА»** — включите «Закрепить динамику» (включено по умолчанию), выберите зону в dropdown и кликните блок для редактирования.
 4. **Удаление блоков** — кнопка «Удалить» в панели (плитки, секции, CPO, команды, шаги flow, зоны ролей, RACI, интеграции, метрики). У секций доменов также есть кнопка «× Секцию».
