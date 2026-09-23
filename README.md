@@ -38,8 +38,10 @@ chmod +x scripts/publish-github.sh
 
 Интерактивная версия схемы публикуется автоматически при push в `main` из корня репозитория (`index.html`, `app.js`, `data.js`, `styles.css`).
 
-- CPO-схема: **https://bbenicore-web.github.io/megafon-cpo-architecture-canvas/**
-- Telecom Digital Platform: **https://bbenicore-web.github.io/megafon-cpo-architecture-canvas/telecom-platform/**
+- Навигация: **https://bbenicore-web.github.io/megafon-cpo-architecture-canvas/**
+- CPO-схема: **https://bbenicore-web.github.io/megafon-cpo-architecture-canvas/cpo/**
+- Telecom Digital Experience Platform: **https://bbenicore-web.github.io/megafon-cpo-architecture-canvas/telecom-platform/**
+- Telecom Digital Platform: **https://bbenicore-web.github.io/megafon-cpo-architecture-canvas/platform-picture/**
 - Workflow: `.github/workflows/pages.yml` (копирует корневые файлы и `telecom-platform/` в `_site` и деплоит через GitHub Actions)
 
 **Интерактивность на Pages:**
@@ -55,7 +57,8 @@ chmod +x scripts/publish-github.sh
 
 Отдельная схема Telecom Digital Experience Platform: бизнес владеет оффером, платформа — путём клиента. Слои: потоки ценности, клиентский путь, capabilities, каналы, зоны ответственности, AS-IS и «Куда хотим».
 
-- Страница: `telecom-platform/index.html`
+- Страница по исходному макету: `platform-picture/index.html`
+- Страница TDXP: `telecom-platform/index.html`
 - WYSIWYG: `telecom-platform/index.html?edit=1` или [Pages с `?edit=1`](https://bbenicore-web.github.io/megafon-cpo-architecture-canvas/telecom-platform/?edit=1)
 - Данные: `telecom-platform/data.js`
 - Canvas: `canvases/telecom-digital-platform.canvas.tsx`

@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const dataJsPath = path.join(__dirname, '..', 'data.js');
+const dataJsPath = path.join(__dirname, '..', 'cpo', 'data.js');
 const src = fs.readFileSync(dataJsPath, 'utf8');
 const fn = new Function('window', `${src}; return window.ARCH_DATA;`);
 const data = fn({});
@@ -54,5 +54,5 @@ const json = JSON.stringify(data, null, 2);
 const body = `window.ARCH_DATA = ${json};\n`;
 fs.writeFileSync(dataJsPath, body);
 fs.writeFileSync(path.join(__dirname, '..', 'docs', 'data.js'), body);
-fs.writeFileSync(path.join(__dirname, '..', 'schema.json'), `${json}\n`);
+fs.writeFileSync(path.join(__dirname, '..', 'cpo', 'schema.json'), `${json}\n`);
 console.log('ui block ensured in data.js, docs/data.js, schema.json');

@@ -9,9 +9,9 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.join(__dirname, '..');
-const dataJsPath = path.join(root, 'data.js');
+const dataJsPath = path.join(root, 'cpo', 'data.js');
 const docsDataJsPath = path.join(root, 'docs', 'data.js');
-const schemaPath = path.join(root, 'schema.json');
+const schemaPath = path.join(root, 'cpo', 'schema.json');
 
 function loadFromDataJs() {
   const src = fs.readFileSync(dataJsPath, 'utf8');

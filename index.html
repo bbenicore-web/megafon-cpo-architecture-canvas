@@ -3,41 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MegaFon CPO Architecture</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>Схемы MegaFon</title>
+  <link rel="stylesheet" href="nav.css">
 </head>
 <body>
-  <header class="page-header">
-    <div class="header-row">
-      <div>
-        <p class="schema-switch"><a href="telecom-platform/index.html">Telecom Digital Platform →</a></p>
-        <h1>MegaFon CPO Architecture</h1>
-        <p>Интерактивная архитектура CPO-структуры цифрового продукта МегаФона</p>
-      </div>
-      <div class="toolbar" id="toolbar"></div>
+  <main class="nav">
+    <p class="eyebrow">MegaFon</p>
+    <h1>Схемы</h1>
+    <p class="lead">Интерактивные схемы продукта и CPO-структуры. У каждой есть режим просмотра и WYSIWYG-редактор.</p>
+    <div class="cards">
+      <article class="card">
+        <h2>CPO Architecture</h2>
+        <p>Бизнес-заказчики, платформенные домены, команды, зоны ответственности и RACI.</p>
+        <div class="actions">
+          <a class="btn primary" href="cpo/index.html">Открыть</a>
+          <a class="btn" href="cpo/index.html?edit=1">WYSIWYG</a>
+        </div>
+      </article>
+      <article class="card">
+        <h2>Telecom Digital Experience Platform</h2>
+        <p>Потоки ценности, путь клиента, capabilities, каналы, зоны ответственности, AS-IS и «Куда хотим».</p>
+        <div class="actions">
+          <a class="btn primary" href="telecom-platform/index.html">Открыть</a>
+          <a class="btn" href="telecom-platform/index.html?edit=1">WYSIWYG</a>
+        </div>
+      </article>
+      <article class="card">
+        <h2>Telecom Digital Platform</h2>
+        <p>Схема по макету: бизнес и клиент по краям, домены, customer journeys, capabilities и каналы в центре.</p>
+        <div class="actions">
+          <a class="btn primary" href="platform-picture/index.html">Открыть</a>
+          <a class="btn" href="platform-picture/index.html?edit=1">WYSIWYG</a>
+        </div>
+      </article>
     </div>
-    <div class="status-bar" id="status-bar">Кликните на элемент схемы или наведите на колонку платформы</div>
-  </header>
-
-  <main class="container">
-    <section class="panel" id="business-section"></section>
-    <section class="banner" id="digital-cpo"></section>
-
-    <div class="layout-platforms">
-      <aside class="sidebar sidebar-zone" id="sidebar-left"></aside>
-      <div class="main-col" id="domains-section"></div>
-    </div>
-
-    <section class="panel" id="integration-section"></section>
-    <section class="panel" id="teams-section"></section>
-    <details class="panel collapsible" id="flow-section" open></details>
-    <details class="panel collapsible" id="roles-section" open></details>
-    <details class="panel collapsible" id="raci-section"></details>
   </main>
-
-  <script src="data.js"></script>
-  <script>window.EDIT_MODE = new URLSearchParams(location.search).has('edit');</script>
-  <script src="app.js"></script>
-  <script src="edit.js"></script>
 </body>
 </html>
