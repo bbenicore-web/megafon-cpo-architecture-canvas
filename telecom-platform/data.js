@@ -194,11 +194,6 @@ window.PLATFORM_DATA = {
             "label": "Сайт"
           },
           {
-            "id": "app",
-            "icon": "phone",
-            "label": "Мобильное приложение"
-          },
-          {
             "id": "lk",
             "icon": "monitor",
             "label": "Личный кабинет"
