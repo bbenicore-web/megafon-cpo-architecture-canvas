@@ -239,6 +239,9 @@ a { color: inherit; }
 .domain-card.tone-purple { background: var(--purple-bg); border-color: #ddd6fe; }
 .domain-card.tone-green { background: var(--green-bg); border-color: #a7f3d0; }
 .domain-card.tone-orange { background: var(--orange-bg); border-color: #fed7aa; }
+.domain-card.static { cursor: default; }
+.domain-card:focus,
+.domain-card:focus-visible { outline: none; }
 .domain-card.active { box-shadow: 0 0 0 2px #111827 inset; }
 .domain-card.dimmed, .cap.dimmed, .channel.dimmed, .journey-step.dimmed { opacity: 0.42; }
 

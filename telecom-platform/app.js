@@ -157,14 +157,20 @@ function renderSide(side, cls, iconName) {
 function renderDomains(layer) {
   return `
     <div class="domains">
-      ${layer.items.map((item) => `
-        <button type="button" class="${itemClass('domain-card', 'domain', item.id, `tone-${item.tone || 'blue'}`)}" data-domain="${item.id}"${editAttrs(`center.layers.domains.items.${item.id}`, 'domain')}>
+      ${layer.items.map((item) => {
+        const interactive = Boolean(RELATED[item.id]);
+        const cls = itemClass('domain-card', 'domain', item.id, `tone-${item.tone || 'blue'}${interactive ? '' : ' static'}`);
+        const inner = `
           ${icon(item.icon)}
           <h3${editAttrs(`center.layers.domains.items.${item.id}.title`, 'text')}>${escapeHtml(item.title)}</h3>
           <div class="sub"${editAttrs(`center.layers.domains.items.${item.id}.subtitle`, 'text')}>${escapeHtml(item.subtitle)}</div>
           <div class="detail"${editAttrs(`center.layers.domains.items.${item.id}.detail`, 'text')}>${escapeHtml(item.detail)}</div>
-        </button>
-      `).join('')}
+        `;
+        if (!interactive) {
+          return `<div class="${cls}"${editAttrs(`center.layers.domains.items.${item.id}`, 'domain')}>${inner}</div>`;
+        }
+        return `<button type="button" class="${cls}" data-domain="${item.id}"${editAttrs(`center.layers.domains.items.${item.id}`, 'domain')}>${inner}</button>`;
+      }).join('')}
     </div>
   `;
 }
@@ -365,6 +371,11 @@ function bindEvents() {
       return;
     }
     if (e.target.closest('#reset-btn')) {
+      setState({ selectedDomain: null, selectedJourney: null, selectedCap: null, selectedChannel: null });
+      return;
+    }
+    const staticCard = e.target.closest('.domain-card.static');
+    if (staticCard) {
       setState({ selectedDomain: null, selectedJourney: null, selectedCap: null, selectedChannel: null });
       return;
     }
