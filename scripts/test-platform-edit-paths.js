@@ -95,4 +95,21 @@ if (failed) {
   process.exit(1);
 }
 
+const appSrc = fs.readFileSync(path.join(__dirname, '..', 'telecom-platform', 'app.js'), 'utf8');
+const discovery = appSrc.match(/discovery:\s*\{[^}]+\}/);
+if (!discovery) {
+  console.log('FAIL discovery relation missing');
+  process.exit(1);
+}
+for (const id of ['j1', 'j2', 'cat', 'nav', 'web', 'lk']) {
+  if (!discovery[0].includes(`'${id}'`)) {
+    console.log('FAIL discovery missing', id);
+    process.exit(1);
+  }
+}
+if (discovery[0].includes("'app'") || discovery[0].includes("'cards'")) {
+  console.log('FAIL discovery includes an unrelated item');
+  process.exit(1);
+}
+console.log('OK discovery selects search, study, catalog, navigation, site, account');
 console.log('All platform data path tests passed');

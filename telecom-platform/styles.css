@@ -260,7 +260,7 @@ a { color: inherit; }
   font-size: 0.75rem;
   color: inherit;
 }
-.journey-step.active { border-color: #111827; font-weight: 700; }
+.journey-step.active { border-color: #111827; font-weight: 700; background: #fef9c3; }
 .journey-arrow { color: #94a3b8; padding: 0 0.3rem; font-size: 0.8rem; }
 
 .caps {
@@ -279,7 +279,7 @@ a { color: inherit; }
   color: inherit;
   font-size: 0.74rem;
 }
-.cap.active, .channel.active { font-weight: 700; }
+.cap.active, .channel.active { font-weight: 700; background: #fef9c3; border-radius: 8px; }
 
 .channels {
   display: grid;

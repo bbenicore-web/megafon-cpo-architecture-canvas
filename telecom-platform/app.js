@@ -50,7 +50,7 @@ function icon(name, cls) {
 }
 
 const RELATED = {
-  discovery: { caps: ['cat', 'nav', 'cards', 'pers'], channels: ['web', 'app'] },
+  discovery: { journeys: ['j1', 'j2'], caps: ['cat', 'nav'], channels: ['web', 'lk'] },
   sales: { caps: ['cat', 'cards', 'cart', 'pay'], channels: ['web', 'app', 'lk'] },
   activation: { caps: ['kyc', 'int', 'pay'], channels: ['app', 'lk'] },
   self: { caps: ['nav', 'int', 'an'], channels: ['app', 'lk'] },
@@ -83,11 +83,21 @@ function isDimmed(kind, id) {
   return false;
 }
 
+function relatedIds(kind) {
+  const rel = state.selectedDomain && RELATED[state.selectedDomain];
+  if (!rel || window.EDIT_MODE) return [];
+  if (kind === 'journey') return rel.journeys || [];
+  if (kind === 'cap') return rel.caps || [];
+  if (kind === 'channel') return rel.channels || [];
+  return [];
+}
+
 function itemClass(base, kind, id, extra) {
   const active = (kind === 'domain' && state.selectedDomain === id)
     || (kind === 'journey' && state.selectedJourney === id)
     || (kind === 'cap' && state.selectedCap === id)
-    || (kind === 'channel' && state.selectedChannel === id);
+    || (kind === 'channel' && state.selectedChannel === id)
+    || relatedIds(kind).includes(id);
   return `${base} ${extra || ''} ${active ? 'active' : ''} ${isDimmed(kind, id) ? 'dimmed' : ''}`.trim();
 }
 
@@ -263,7 +273,14 @@ function statusText() {
   const D = getData();
   if (state.selectedDomain) {
     const item = layerById('domains')?.items.find((i) => i.id === state.selectedDomain);
-    return item ? `${item.title}: ${item.detail}` : D.ui.statusDefault;
+    const rel = RELATED[state.selectedDomain];
+    if (!item) return D.ui.statusDefault;
+    if (!rel) return `${item.title}: ${item.detail}`;
+    const labels = (layerId, ids) => (layerById(layerId)?.items || [])
+      .filter((entry) => ids.includes(entry.id))
+      .map((entry) => entry.label || entry.title)
+      .join(', ');
+    return `${item.title}: ${labels('journeys', rel.journeys || [])}; ${labels('capabilities', rel.caps || [])}; ${labels('channels', rel.channels || [])}`;
   }
   if (state.selectedJourney) {
     const item = layerById('journeys')?.items.find((i) => i.id === state.selectedJourney);
