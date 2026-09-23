@@ -1,7 +1,7 @@
 window.PLATFORM_DATA = {
-  "pageTitle": "Telecom Digital Platform",
-  "pageSubtitle": "Цифровая платформа взаимодействия клиента с телекомом",
-  "mission": "Наша миссия — обеспечивать удобный, быстрый и эффективный цифровой путь клиента от потребности до покупки, подключения и дальнейшего управления телеком-продуктами.",
+  "pageTitle": "Telecom Digital Experience Platform",
+  "pageSubtitle": "Цифровая среда пути клиента: найти, понять, выбрать, купить, подключить и обслуживать",
+  "mission": "Платформа обеспечивает цифровой путь клиента. Telecom Business владеет оффером, CPO Telecom Platform — тем, как клиент взаимодействует с ним в digital.",
   "value": {
     "title": "Ценность продукта",
     "client": {
@@ -24,13 +24,13 @@ window.PLATFORM_DATA = {
   "left": {
     "id": "business",
     "title": "Telecom Business",
-    "subtitle": "CPO / Продуктовый бизнес",
+    "subtitle": "Владеет оффером: WHAT",
     "provides": {
-      "title": "Что предоставляет:",
+      "title": "Что принадлежит бизнесу:",
       "items": [
-        "Телеком-продукты (тарифы, опции, услуги, семейные продукты и т.д.)",
-        "Цены и условия",
-        "Бизнес-цели и экономика"
+        "Состав продукта: тарифы, опции, семья, домашний интернет",
+        "Цена, условия и позиционирование",
+        "Экономика и business case"
       ]
     },
     "results": {
@@ -42,57 +42,65 @@ window.PLATFORM_DATA = {
         "Эффективность продуктовой модели"
       ]
     },
-    "arrow": "Офферы и бизнес-условия (продуктовый контент)"
+    "arrow": "Офферы и бизнес-продукты (WHAT)"
   },
   "center": {
-    "title": "Telecom Digital Platform",
-    "subtitle": "Продуктовые домены и клиентские сценарии",
+    "title": "Telecom Digital Experience Platform",
+    "subtitle": "Потоки ценности, переиспользуемые возможности и каналы",
     "layers": [
       {
         "id": "domains",
         "number": "1",
-        "title": "Продуктовые домены",
-        "enTitle": "Business / Product Domains",
+        "title": "Потоки ценности",
+        "enTitle": "Value streams",
         "items": [
           {
-            "id": "acq",
-            "icon": "userPlus",
+            "id": "discovery",
+            "icon": "search",
             "tone": "blue",
-            "title": "Acquisition",
-            "subtitle": "Новые абоненты",
-            "detail": "MNP, SIM, eSIM, стартовые пакеты"
+            "title": "Discovery",
+            "subtitle": "Найти и понять",
+            "detail": "Поиск, сравнение и понимание оффера до покупки"
           },
           {
-            "id": "tariff",
-            "icon": "star",
+            "id": "sales",
+            "icon": "cart",
             "tone": "purple",
-            "title": "Tariff & Offers",
-            "subtitle": "Выбор и сравнение",
-            "detail": "Тарифы, опции, семейные продукты, специальные предложения"
+            "title": "Sales",
+            "subtitle": "Выбрать и купить",
+            "detail": "Новые абоненты — поток результата, а не весь продукт: SIM, eSIM, MNP"
+          },
+          {
+            "id": "activation",
+            "icon": "userPlus",
+            "tone": "orange",
+            "title": "Activation",
+            "subtitle": "Подключить",
+            "detail": "Оформление, проверка личности, активация и старт использования"
           },
           {
             "id": "self",
             "icon": "settings",
             "tone": "green",
             "title": "Self-service",
-            "subtitle": "Управление услугами",
-            "detail": "Баланс, тариф, услуги, доп. опции, настройки"
+            "subtitle": "Обслуживать себя",
+            "detail": "Баланс, тариф, услуги, настройки и операции без оператора"
           },
           {
             "id": "postsale",
             "icon": "heart",
-            "tone": "orange",
+            "tone": "blue",
             "title": "Post-sale",
-            "subtitle": "Активация и удержание",
-            "detail": "Подключение, активация, поддержка, лояльность"
+            "subtitle": "Оставаться и возвращаться",
+            "detail": "Поддержка, удержание, лояльность и повторные сценарии"
           }
         ]
       },
       {
         "id": "journeys",
         "number": "2",
-        "title": "Клиентские сценарии",
-        "enTitle": "Customer Journeys",
+        "title": "Пример клиентского пути",
+        "enTitle": "Customer path",
         "items": [
           {
             "id": "j1",
@@ -135,7 +143,7 @@ window.PLATFORM_DATA = {
           {
             "id": "cards",
             "icon": "card",
-            "label": "Карточки"
+            "label": "Карточки офферов"
           },
           {
             "id": "pers",
@@ -145,7 +153,7 @@ window.PLATFORM_DATA = {
           {
             "id": "cart",
             "icon": "cart",
-            "label": "Корзина / checkout"
+            "label": "Корзина и оформление заказа"
           },
           {
             "id": "int",
@@ -155,7 +163,7 @@ window.PLATFORM_DATA = {
           {
             "id": "kyc",
             "icon": "shield",
-            "label": "Проверка личности (KYC)"
+            "label": "Auth и проверка личности"
           },
           {
             "id": "pay",
@@ -230,50 +238,46 @@ window.PLATFORM_DATA = {
         "Позитивный опыт (CX)"
       ]
     },
-    "arrow": "Цифровой опыт клиента (продуктовый результат)"
+    "arrow": "Цифровой опыт клиента (HOW)"
   },
   "metrics": {
-    "title": "Ключевые метрики и результат",
+    "title": "AS-IS: что уже измерено",
     "columns": [
       {
         "id": "sales",
         "icon": "shop",
-        "title": "Для продаж",
+        "title": "Продажи",
         "items": [
-          "Digital sales",
-          "Conversion по воронке",
-          "Новые абоненты / MNP",
-          "Cross-sell / Upsell"
+          "250 000 заказов в месяц",
+          "Online-доля 7%",
+          "Средний чек 400 ₽"
         ]
       },
       {
-        "id": "self",
-        "icon": "headset",
-        "title": "Для самообслуживания",
+        "id": "mix",
+        "icon": "chart",
+        "title": "Смешение каналов",
         "items": [
-          "Доля решенных задач без оператора",
-          "Digital adoption",
-          "Успешность сценариев",
-          "Снижение обращений в поддержку"
+          "Проникновение дополнительных опций 2%",
+          "MNP около 60%",
+          "Смена тарифа: витрина 75%, персональное предложение 25%"
         ]
       },
       {
-        "id": "biz",
-        "icon": "building",
-        "title": "Для бизнеса",
+        "id": "surfaces",
+        "icon": "monitor",
+        "title": "Витрины",
         "items": [
-          "Time-to-market нового оффера",
-          "Стоимость вывода в digital",
-          "Reuse capabilities",
-          "Доля продуктов в digital"
+          "Витрина смены тарифа: ЛК 98%",
+          "Сайт 2%"
         ]
       },
       {
         "id": "outcome",
         "icon": "target",
-        "title": "Итог",
+        "title": "Северная звезда",
         "items": [
-          "Довольный клиент + эффективный бизнес = рост и развитие телекома"
+          "Вклад digital в GM, online-долю, заказы, CR, чек, LTV и CSI/CES"
         ]
       }
     ]
@@ -281,5 +285,26 @@ window.PLATFORM_DATA = {
   "ui": {
     "statusDefault": "Кликните на домен, сценарий, capability или канал",
     "hiddenBlocks": []
+  },
+  "zones": {
+    "title": "Зоны ответственности",
+    "items": [
+      "Telecom Business — что продавать: состав, цена, условия, позиционирование и экономика",
+      "CPO Telecom Platform — как клиент проходит путь: journeys, витрины, capabilities, roadmap и целостность опыта",
+      "Product Leads — развитие конкретных потоков ценности",
+      "Команды — реализация и delivery"
+    ]
+  },
+  "tobe": {
+    "title": "Куда хотим",
+    "items": [
+      "Рост GM",
+      "+10 п.п. online-доли",
+      "+20% заказов",
+      "Online как предпочтительный канал",
+      "Масштабируемый источник лидов без кастомного запуска каждого оффера",
+      "Прозрачный путь покупки без дублей",
+      "Понятная структура офферов"
+    ]
   }
 };

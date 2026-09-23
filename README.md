@@ -53,7 +53,7 @@ chmod +x scripts/publish-github.sh
 
 ## Telecom Digital Platform
 
-Отдельная схема ценности и слоёв цифровой телеком-платформы (бизнес → платформа → клиент, домены, journeys, capabilities, каналы, метрики).
+Отдельная схема Telecom Digital Experience Platform: бизнес владеет оффером, платформа — путём клиента. Слои: потоки ценности, клиентский путь, capabilities, каналы, зоны ответственности, AS-IS и «Куда хотим».
 
 - Страница: `telecom-platform/index.html`
 - WYSIWYG: `telecom-platform/index.html?edit=1` или [Pages с `?edit=1`](https://bbenicore-web.github.io/megafon-cpo-architecture-canvas/telecom-platform/?edit=1)

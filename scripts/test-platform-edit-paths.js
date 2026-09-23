@@ -35,12 +35,14 @@ const cases = [
   ['mission', 'string'],
   ['value.client.items.0', 'string'],
   ['left.provides.items.0', 'string'],
-  ['center.layers.domains.items.acq.title', 'string'],
+  ['center.layers.domains.items.discovery.title', 'string'],
   ['center.layers.journeys.items.j1.label', 'string'],
   ['center.layers.capabilities.items.cat.label', 'string'],
   ['center.layers.channels.items.web.label', 'string'],
   ['right.uses.items.0', 'string'],
   ['metrics.columns.sales.items.0', 'string'],
+  ['zones.items.0', 'string'],
+  ['tobe.items.0', 'string'],
 ];
 
 let failed = 0;
@@ -60,7 +62,7 @@ if (!Array.isArray(layers) || layers.length !== 4) {
 }
 
 const domainCount = layers.find((l) => l.id === 'domains')?.items.length;
-if (domainCount !== 4) {
+if (domainCount !== 5) {
   console.log('FAIL domains count', domainCount);
   failed++;
 } else {
@@ -75,7 +77,7 @@ if (journeyCount !== 5) {
   console.log('OK journeys count', journeyCount);
 }
 
-const tile = getByPath(data, 'center.layers.domains.items.acq');
+const tile = getByPath(data, 'center.layers.domains.items.discovery');
 tile.title = 'TEST DOMAIN';
 console.log('Apply simulation OK:', tile.title === 'TEST DOMAIN');
 
@@ -86,7 +88,7 @@ function cloneData(d) {
 const del = cloneData(data);
 const domains = del.center.layers.find((l) => l.id === 'domains');
 const before = domains.items.length;
-domains.items = domains.items.filter((item) => item.id !== 'acq');
+domains.items = domains.items.filter((item) => item.id !== 'discovery');
 console.log('Delete domain OK:', domains.items.length === before - 1);
 
 if (failed) {

@@ -50,10 +50,11 @@ function icon(name, cls) {
 }
 
 const RELATED = {
-  acq: { journeys: ['j1', 'j2'], caps: ['cat', 'cards', 'kyc'], channels: ['web', 'app'] },
-  tariff: { journeys: ['j2', 'j3'], caps: ['cat', 'cards', 'pers', 'cart'], channels: ['web', 'app', 'lk'] },
-  self: { journeys: ['j5'], caps: ['nav', 'int', 'an'], channels: ['app', 'lk'] },
-  postsale: { journeys: ['j4', 'j5'], caps: ['int', 'an'], channels: ['lk', 'bot'] },
+  discovery: { caps: ['cat', 'nav', 'cards', 'pers'], channels: ['web', 'app'] },
+  sales: { caps: ['cat', 'cards', 'cart', 'pay'], channels: ['web', 'app', 'lk'] },
+  activation: { caps: ['kyc', 'int', 'pay'], channels: ['app', 'lk'] },
+  self: { caps: ['nav', 'int', 'an'], channels: ['app', 'lk'] },
+  postsale: { caps: ['int', 'an', 'pers'], channels: ['lk', 'bot'] },
 };
 
 const state = {
@@ -72,7 +73,7 @@ function isDimmed(kind, id) {
   const d = state.selectedDomain;
   if (d && RELATED[d]) {
     if (kind === 'domain') return id !== d;
-    if (kind === 'journey') return !RELATED[d].journeys.includes(id);
+    if (kind === 'journey') return !(RELATED[d].journeys || []).includes(id);
     if (kind === 'cap') return !RELATED[d].caps.includes(id);
     if (kind === 'channel') return !RELATED[d].channels.includes(id);
   }
@@ -230,6 +231,18 @@ function renderCore(D) {
   `;
 }
 
+function renderNamedList(key, label) {
+  const block = getData()[key];
+  if (!block) return '';
+  if (!isBlockVisible(key)) return hiddenStrip(key, label);
+  return `
+    <section class="metrics" data-add="${key}.items" ${editAttrs(`ui.blocks.${key}`, 'block')}>
+      <div class="metrics-title"${editAttrs(`${key}.title`, 'text')}>${escapeHtml(block.title)}</div>
+      ${listItems(block.items, `${key}.items`)}
+    </section>
+  `;
+}
+
 function renderMetrics(D) {
   return `
     <section class="metrics" ${editAttrs('ui.blocks.metrics', 'block')}>
@@ -307,9 +320,12 @@ function render() {
   const right = isBlockVisible('client') ? renderSide(D.right, 'side-right', 'user') : hiddenStrip('client', 'Клиент');
   const core = isBlockVisible('center') ? renderCore(D) : hiddenStrip('center', 'Платформа');
   const metrics = isBlockVisible('metrics') ? renderMetrics(D) : hiddenStrip('metrics', 'Метрики');
+  const zones = renderNamedList('zones', 'Зоны ответственности');
+  const tobe = renderNamedList('tobe', 'Куда хотим');
 
   document.getElementById('diagram').innerHTML = `
     ${hero}
+    ${zones}
     <div class="stage">
       ${left}
       <div class="v-arrow"${editAttrs('left.arrow', 'text')}>${escapeHtml(D.left.arrow)}</div>
@@ -318,6 +334,7 @@ function render() {
       ${right}
     </div>
     ${metrics}
+    ${tobe}
   `;
 
   if (window.PlatformEditor) window.PlatformEditor.afterRender();

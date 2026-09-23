@@ -26,6 +26,8 @@
     center: { label: 'Платформа' },
     client: { label: 'Конечный клиент' },
     metrics: { label: 'Метрики' },
+    zones: { label: 'Зоны ответственности' },
+    tobe: { label: 'Куда хотим' },
   };
 
   function resolveSegment(cur, part) {
@@ -493,6 +495,11 @@
     });
     add('.layer[data-edit-path="center.layers.channels"] .channels', '+ Канал', () => {
       addToList('center.layers.channels.items', () => ({ id: newId('ch'), icon: 'globe', label: 'Новый канал' }), 'Канал добавлен');
+    });
+    ['zones', 'tobe'].forEach((key) => {
+      add(`[data-add="${key}.items"]`, '+ Пункт', () => {
+        addToList(`${key}.items`, () => 'Новый пункт', 'Пункт добавлен');
+      });
     });
     add('.metrics-grid', '+ Колонка метрик', () => {
       addToList('metrics.columns', () => ({
