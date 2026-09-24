@@ -29,7 +29,7 @@ jobs:
           cp cpo/index.html cpo/app.js cpo/data.js cpo/styles.css cpo/edit.js _site/cpo/
           cp telecom-platform/index.html telecom-platform/app.js telecom-platform/data.js telecom-platform/styles.css telecom-platform/edit.js _site/telecom-platform/
           cp platform-picture/index.html platform-picture/app.js platform-picture/data.js platform-picture/styles.css platform-picture/edit.js _site/platform-picture/
-          cp roadmap/index.html roadmap/roadmap.css _site/roadmap/
+          cp roadmap/index.html roadmap/roadmap.css roadmap/roadmap_slide.png _site/roadmap/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
