@@ -30,7 +30,7 @@ jobs:
           cp telecom-platform/index.html telecom-platform/app.js telecom-platform/data.js telecom-platform/styles.css telecom-platform/edit.js _site/telecom-platform/
           cp platform-picture/index.html platform-picture/app.js platform-picture/data.js platform-picture/styles.css platform-picture/edit.js _site/platform-picture/
           mkdir -p _site/roadmap/fonts
-          cp roadmap/index.html roadmap/roadmap.css _site/roadmap/
+          cp roadmap/index.html roadmap/roadmap.css roadmap/data.js roadmap/render.js _site/roadmap/
           cp roadmap/fonts/*.ttf _site/roadmap/fonts/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
