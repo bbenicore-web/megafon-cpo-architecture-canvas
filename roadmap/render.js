@@ -16,12 +16,6 @@
     return { left, width, style: `left:${left.toFixed(4)}%;width:${width.toFixed(4)}%` };
   }
 
-  function phaseLabel(phase) {
-    if (phase === 'discovery') return 'Discovery';
-    if (phase === 'delivery') return 'Delivery';
-    return '';
-  }
-
   function esc(s) {
     return String(s)
       .replace(/&/g, '&amp;')
@@ -71,9 +65,8 @@
         return;
       }
       const cls = row.later ? 'bar later' : 'bar';
-      const label = phaseLabel(row.phase);
       const geom = barGeom(row);
-      html += `<div class="lane${group}"><i class="${cls}" style="${geom.style}"></i>${label ? `<span class="phase ${row.phase}" style="left:calc(${geom.left.toFixed(4)}% + 4px)">${label}</span>` : ''}</div>`;
+      html += `<div class="lane${group}"><i class="${cls}" style="${geom.style}"></i></div>`;
       html += `<div class="tbd-cell${group}"></div>`;
     });
   });
