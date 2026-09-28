@@ -261,15 +261,17 @@ h1 {
 .release-mark {
   position: absolute;
   top: 50%;
-  transform: translate(-100%, -50%);
+  transform: translateY(-50%);
   display: flex;
   align-items: center;
   gap: 6px;
   z-index: 3;
-  padding: 1px 8px 1px 4px;
+  margin-left: 6px;
+  padding: 1px 4px;
   background: #fff;
   border-radius: 8px;
   white-space: nowrap;
+  font-size: 9px;
 }
 
 .prep-links {

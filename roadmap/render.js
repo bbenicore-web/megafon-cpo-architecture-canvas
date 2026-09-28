@@ -124,7 +124,7 @@
       if (isPokSource) note += '<span class="task-note source">От этой работы зависят задачи ЛК</span>';
       const laneMeta = `${row.id ? ` data-id="${esc(row.id)}"` : ''}${dependsOnPrep ? ' data-prep="1"' : ''}`;
       html += `<div class="team${group}">${esc(row.team)}</div>`;
-      html += `<div class="task${group}"><span class="task-name">${esc(row.task)}</span>${note}</div>`;
+      html += `<div class="task${group}"${dependsOnPrep ? ' data-prep="1"' : ''}><span class="task-name">${esc(row.task)}</span>${note}</div>`;
       const depTick = dependsOnBss && depAt != null
         ? `<span class="dep-tick" style="left:${depAt.toFixed(4)}%"></span>`
         : '';
@@ -147,7 +147,7 @@
         ? `<span class="dep-flag" style="left:calc(${depAt.toFixed(4)}% + 10px)">От этой работы зависят задачи ЦКО</span>`
         : '';
       const release = row.release
-        ? `<span class="release-mark" style="left:${(geom.left + geom.width).toFixed(4)}%"><b>Релиз</b><span>может сдвинуться из-за оценки других задач</span></span>`
+        ? `<span class="release-mark" style="left:calc(${(geom.left + geom.width).toFixed(4)}% + 6px)"><b>Релиз</b><span>может сдвинуться из-за оценки других задач</span></span>`
         : '';
       html += `<div class="lane${dependsOnBss ? ' dep' : ''}${group}"${laneMeta}><i class="${cls}" style="${geom.style}"></i>${depTick}${flag}${release}</div>`;
       html += `<div class="tbd-cell${group}"></div>`;
@@ -170,27 +170,30 @@
     svg.setAttribute('height', String(crect.height));
     root.appendChild(svg);
     const ns = 'http://www.w3.org/2000/svg';
+    const taskTargets = [...root.querySelectorAll('.task[data-prep]')];
     sources.forEach((bar, index) => {
       const br = bar.getBoundingClientRect();
-      const x0 = br.right - crect.left;
       const y0 = br.top + br.height / 2 - crect.top;
-      const laneRight = targets[0].getBoundingClientRect().right - crect.left;
-      const gutter = laneRight - 3 - index * 7;
-      const yLast = targets[targets.length - 1].getBoundingClientRect();
-      const yEnd = yLast.top + yLast.height / 2 - crect.top;
+      const sourceLane = bar.parentElement.getBoundingClientRect();
+      const spineX = sourceLane.left - crect.left + 4 + index * 5;
+      const barLeft = br.left - crect.left;
+      const lastTask = taskTargets[taskTargets.length - 1];
+      const yEnd = lastTask
+        ? lastTask.getBoundingClientRect().top + lastTask.getBoundingClientRect().height / 2 - crect.top
+        : y0;
       const spine = document.createElementNS(ns, 'path');
-      spine.setAttribute('d', `M ${x0.toFixed(1)} ${y0.toFixed(1)} H ${gutter.toFixed(1)} V ${yEnd.toFixed(1)}`);
+      spine.setAttribute('d', `M ${barLeft.toFixed(1)} ${y0.toFixed(1)} H ${spineX.toFixed(1)} V ${yEnd.toFixed(1)}`);
       spine.setAttribute('fill', 'none');
       spine.setAttribute('stroke', '#1c2430');
       spine.setAttribute('stroke-width', '1.5');
       if (index === 1) spine.setAttribute('stroke-dasharray', '4 3');
       svg.appendChild(spine);
-      targets.forEach((lane) => {
-        const lr = lane.getBoundingClientRect();
-        const y = lr.top + lr.height / 2 - crect.top;
-        const xTip = gutter - 16;
+      taskTargets.forEach((task) => {
+        const tr = task.getBoundingClientRect();
+        const y = tr.top + tr.height / 2 - crect.top;
+        const xTip = tr.right - crect.left - 4;
         const tick = document.createElementNS(ns, 'path');
-        tick.setAttribute('d', `M ${gutter.toFixed(1)} ${y.toFixed(1)} H ${xTip.toFixed(1)}`);
+        tick.setAttribute('d', `M ${spineX.toFixed(1)} ${y.toFixed(1)} H ${xTip.toFixed(1)}`);
         tick.setAttribute('fill', 'none');
         tick.setAttribute('stroke', '#1c2430');
         tick.setAttribute('stroke-width', '1.5');
