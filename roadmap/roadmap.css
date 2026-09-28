@@ -274,13 +274,6 @@ h1 {
   font-size: 9px;
 }
 
-.prep-links {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 4;
-}
-
 .release-mark b {
   padding: 1px 6px;
   border-radius: 8px;

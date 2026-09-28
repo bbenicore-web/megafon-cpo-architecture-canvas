@@ -155,44 +155,4 @@
   });
 
   chart.innerHTML = html;
-  drawPrepLinks(chart);
-
-  function drawPrepLinks(root) {
-    const targets = [...root.querySelectorAll('.lane[data-prep]')];
-    const sources = ['bft', 'cjm']
-      .map((id) => root.querySelector(`.lane[data-id="${id}"] .bar`))
-      .filter(Boolean);
-    if (!targets.length || !sources.length) return;
-    const crect = root.getBoundingClientRect();
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('class', 'prep-links');
-    svg.setAttribute('width', String(crect.width));
-    svg.setAttribute('height', String(crect.height));
-    root.appendChild(svg);
-    const ns = 'http://www.w3.org/2000/svg';
-    sources.forEach((bar, index) => {
-      const br = bar.getBoundingClientRect();
-      const y0 = br.top + br.height / 2 - crect.top;
-      const spineX = br.right - crect.left;
-      const lastTarget = targets[targets.length - 1].getBoundingClientRect();
-      const yEnd = lastTarget.top + lastTarget.height / 2 - crect.top;
-      const spine = document.createElementNS(ns, 'path');
-      spine.setAttribute('d', `M ${spineX.toFixed(1)} ${y0.toFixed(1)} V ${yEnd.toFixed(1)}`);
-      spine.setAttribute('fill', 'none');
-      spine.setAttribute('stroke', '#1c2430');
-      spine.setAttribute('stroke-width', '1.5');
-      if (index === 1) spine.setAttribute('stroke-dasharray', '4 3');
-      svg.appendChild(spine);
-      targets.forEach((lane) => {
-        const lr = lane.getBoundingClientRect();
-        const y = lr.top + lr.height / 2 - crect.top;
-        const head = document.createElementNS(ns, 'path');
-        head.setAttribute('d', `M ${(spineX - 4).toFixed(1)} ${(y - 6).toFixed(1)} L ${spineX.toFixed(1)} ${y.toFixed(1)} L ${(spineX + 4).toFixed(1)} ${(y - 6).toFixed(1)}`);
-        head.setAttribute('fill', 'none');
-        head.setAttribute('stroke', '#1c2430');
-        head.setAttribute('stroke-width', '1.5');
-        svg.appendChild(head);
-      });
-    });
-  }
 })();
