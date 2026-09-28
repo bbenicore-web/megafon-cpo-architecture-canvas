@@ -170,37 +170,24 @@
     svg.setAttribute('height', String(crect.height));
     root.appendChild(svg);
     const ns = 'http://www.w3.org/2000/svg';
-    const taskTargets = [...root.querySelectorAll('.task[data-prep]')];
     sources.forEach((bar, index) => {
       const br = bar.getBoundingClientRect();
       const y0 = br.top + br.height / 2 - crect.top;
-      const sourceLane = bar.parentElement.getBoundingClientRect();
-      const spineX = sourceLane.left - crect.left + 4 + index * 5;
-      const barLeft = br.left - crect.left;
-      const lastTask = taskTargets[taskTargets.length - 1];
-      const yEnd = lastTask
-        ? lastTask.getBoundingClientRect().top + lastTask.getBoundingClientRect().height / 2 - crect.top
-        : y0;
+      const spineX = br.right - crect.left;
+      const lastTarget = targets[targets.length - 1].getBoundingClientRect();
+      const yEnd = lastTarget.top + lastTarget.height / 2 - crect.top;
       const spine = document.createElementNS(ns, 'path');
-      spine.setAttribute('d', `M ${barLeft.toFixed(1)} ${y0.toFixed(1)} H ${spineX.toFixed(1)} V ${yEnd.toFixed(1)}`);
+      spine.setAttribute('d', `M ${spineX.toFixed(1)} ${y0.toFixed(1)} V ${yEnd.toFixed(1)}`);
       spine.setAttribute('fill', 'none');
       spine.setAttribute('stroke', '#1c2430');
       spine.setAttribute('stroke-width', '1.5');
       if (index === 1) spine.setAttribute('stroke-dasharray', '4 3');
       svg.appendChild(spine);
-      taskTargets.forEach((task) => {
-        const tr = task.getBoundingClientRect();
-        const y = tr.top + tr.height / 2 - crect.top;
-        const xTip = tr.right - crect.left - 4;
-        const tick = document.createElementNS(ns, 'path');
-        tick.setAttribute('d', `M ${spineX.toFixed(1)} ${y.toFixed(1)} H ${xTip.toFixed(1)}`);
-        tick.setAttribute('fill', 'none');
-        tick.setAttribute('stroke', '#1c2430');
-        tick.setAttribute('stroke-width', '1.5');
-        if (index === 1) tick.setAttribute('stroke-dasharray', '4 3');
-        svg.appendChild(tick);
+      targets.forEach((lane) => {
+        const lr = lane.getBoundingClientRect();
+        const y = lr.top + lr.height / 2 - crect.top;
         const head = document.createElementNS(ns, 'path');
-        head.setAttribute('d', `M ${(xTip + 6).toFixed(1)} ${(y - 3.5).toFixed(1)} L ${xTip.toFixed(1)} ${y.toFixed(1)} L ${(xTip + 6).toFixed(1)} ${(y + 3.5).toFixed(1)}`);
+        head.setAttribute('d', `M ${(spineX - 4).toFixed(1)} ${(y - 6).toFixed(1)} L ${spineX.toFixed(1)} ${y.toFixed(1)} L ${(spineX + 4).toFixed(1)} ${(y - 6).toFixed(1)}`);
         head.setAttribute('fill', 'none');
         head.setAttribute('stroke', '#1c2430');
         head.setAttribute('stroke-width', '1.5');

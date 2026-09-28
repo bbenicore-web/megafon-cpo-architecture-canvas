@@ -270,7 +270,7 @@ h1 {
   padding: 1px 4px;
   background: #fff;
   border-radius: 8px;
-  white-space: nowrap;
+  white-space: normal;
   font-size: 9px;
 }
 
@@ -293,9 +293,10 @@ h1 {
 
 .release-mark span {
   color: #1c2430;
-  font-size: 10px;
+  max-width: 96px;
+  font-size: 8px;
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 1.05;
   background: #fff;
 }
 
