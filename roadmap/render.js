@@ -27,6 +27,52 @@
   const chart = document.querySelector('.chart');
   if (!chart) return;
 
+  const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+
+  function depIds(row) {
+    if (!row.dependsOn) return [];
+    return [].concat(row.dependsOn);
+  }
+
+  function scaleParts() {
+    const parts = [];
+    let cursor = scaleStart;
+    while (cursor < scaleEnd) {
+      const d = new Date(cursor);
+      const nextMonth = Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1);
+      const segEnd = Math.min(nextMonth, scaleEnd);
+      const q = Math.floor(d.getUTCMonth() / 3) + 1;
+      parts.push({
+        width: ((segEnd - cursor) / span) * 100,
+        month: `${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`,
+        quarter: `${q}Q${String(d.getUTCFullYear()).slice(2)}`,
+      });
+      cursor = segEnd;
+    }
+    return parts;
+  }
+
+  const parts = scaleParts();
+  const quarters = [];
+  parts.forEach((part) => {
+    const last = quarters[quarters.length - 1];
+    if (last && last.label === part.quarter) last.width += part.width;
+    else quarters.push({ label: part.quarter, width: part.width });
+  });
+  const lines = [];
+  parts.reduce((acc, part, index) => {
+    const next = acc + part.width;
+    if (index < parts.length - 1) lines.push(next);
+    return next;
+  }, 0);
+  const gradient = lines.length
+    ? `linear-gradient(to right, ${lines.map((line) => {
+      const p = line.toFixed(4);
+      return `transparent ${p}%, var(--grid) ${p}%, var(--grid) calc(${p}% + 1px), transparent calc(${p}% + 1px)`;
+    }).join(', ')})`
+    : 'none';
+  chart.style.setProperty('--lane-grid', gradient);
+
   let anchorGeom = null;
   D.blocks.forEach((block) => {
     block.rows.forEach((row) => {
@@ -46,16 +92,10 @@
     <div class="colhead task-col">Задача</div>
     <div class="scale-head">
       <div class="quarters">
-        <span style="width:19.6078%">3Q26</span>
-        <span style="width:60.1306%">4Q26</span>
-        <span style="width:20.2614%">1Q27</span>
+        ${quarters.map((q) => `<span style="width:${q.width.toFixed(4)}%">${esc(q.label)}</span>`).join('')}
       </div>
       <div class="months">
-        <span style="width:19.6078%">Сентябрь 2026</span>
-        <span style="width:20.2614%">Октябрь 2026</span>
-        <span style="width:19.6078%">Ноябрь 2026</span>
-        <span style="width:20.2614%">Декабрь 2026</span>
-        <span style="width:20.2614%">Январь 2027</span>
+        ${parts.map((part) => `<span style="width:${part.width.toFixed(4)}%">${esc(part.month)}</span>`).join('')}
       </div>
     </div>
     <div class="colhead tbd-col">TBD</div>
@@ -65,34 +105,44 @@
     html += `<div class="block-title">${esc(block.title)}</div>`;
     block.rows.forEach((row, idx) => {
       const group = idx === 0 ? ' group' : '';
-      const note = row.requirementsOpen
-        ? '<span class="task-note open">Требования не финализированы</span>'
-        : row.dependsOn === 'bss-core'
-          ? '<span class="task-note dep">Зависит от конфигурирования BSS CORE</span>'
-          : '';
+      const ids = depIds(row);
+      const dependsOnBss = ids.includes('bss-core');
+      const dependsOnPok = ids.includes('pok-combo') || ids.includes('pok-zero');
+      const isPokSource = row.id === 'pok-combo' || row.id === 'pok-zero';
+      let note = '';
+      if (row.requirementsOpen) note += '<span class="task-note open">Требования не финализированы</span>';
+      if (dependsOnBss && dependsOnPok) {
+        note += '<span class="task-note dep">Зависит от BSS CORE и от ПОК: комбо-наборы, нулевой профиль</span>';
+      } else if (dependsOnBss) {
+        note += '<span class="task-note dep">Зависит от конфигурирования BSS CORE</span>';
+      } else if (dependsOnPok) {
+        note += '<span class="task-note dep">Зависит от ПОК: комбо-наборы и нулевой профиль</span>';
+      }
+      if (isPokSource) note += '<span class="task-note source">От этой работы зависят задачи ЛК</span>';
       html += `<div class="team${group}">${esc(row.team)}</div>`;
       html += `<div class="task${group}"><span class="task-name">${esc(row.task)}</span>${note}</div>`;
-      const depTick = row.dependsOn === 'bss-core' && depAt != null
+      const depTick = dependsOnBss && depAt != null
         ? `<span class="dep-tick" style="left:${depAt.toFixed(4)}%"></span>`
         : '';
       if (row.tbd) {
-        const laneDep = row.dependsOn === 'bss-core' ? ' dep' : '';
+        const laneDep = dependsOnBss ? ' dep' : '';
+        const tbdCls = ids.length ? ' dep' : isPokSource ? ' source' : '';
         html += `<div class="lane${laneDep}${group}">${depTick}</div>`;
-        html += `<div class="tbd-cell${group}"><span class="tbd">TBD</span></div>`;
+        html += `<div class="tbd-cell${group}"><span class="tbd${tbdCls}">TBD</span></div>`;
         return;
       }
       const cls = [
         'bar',
         row.later ? 'later' : '',
         row.requirementsOpen ? 'open' : '',
-        row.dependsOn === 'bss-core' ? 'dep' : '',
+        ids.length ? 'dep' : '',
         row.id === 'bss-core' ? 'anchor' : '',
       ].filter(Boolean).join(' ');
       const geom = barGeom(row);
       const flag = row.id === 'bss-core' && depAt != null
         ? `<span class="dep-flag" style="left:calc(${depAt.toFixed(4)}% + 10px)">От этой работы зависят задачи ЦКО</span>`
         : '';
-      html += `<div class="lane${row.dependsOn === 'bss-core' ? ' dep' : ''}${group}"><i class="${cls}" style="${geom.style}"></i>${depTick}${flag}</div>`;
+      html += `<div class="lane${dependsOnBss ? ' dep' : ''}${group}"><i class="${cls}" style="${geom.style}"></i>${depTick}${flag}</div>`;
       html += `<div class="tbd-cell${group}"></div>`;
     });
   });
