@@ -34,11 +34,10 @@ window.ROADMAP_DATA = {
       rows: [
         { team: 'ЦКО', task: 'Аналитика архитектуры решения', start: '2026-10-05', end: '2026-10-15' },
         { team: 'ЦКО', task: 'ЛК: Новая детальная страница тарифа', start: '2026-10-19', end: '2026-12-25', dependsOn: ['bss-core', 'pok-combo', 'pok-zero'] },
-        { team: 'ЦКО', task: 'ЛК: Новый экран «Мой тариф»', start: '2026-11-30', end: '2027-02-05', dependsOn: ['bss-core', 'pok-combo', 'pok-zero'] },
+        { team: 'ЦКО', task: 'ЛК: Новый экран «Мой тариф»', start: '2026-11-30', end: '2027-02-05', dependsOn: ['bss-core', 'pok-combo', 'pok-zero'], release: true },
         { team: 'ЦКО', task: 'ЛК: Комбо-наборы в разделах: Мегасилы, услуги, чек', start: '2026-11-09', end: '2027-01-06', dependsOn: ['bss-core', 'pok-combo', 'pok-zero'] },
         { team: 'ПОК', task: 'Настройка комбо-наборов ПОК', tbd: true, id: 'pok-combo' },
         { team: 'ПОК', task: 'Настройка нулевого профиля ПОК', tbd: true, id: 'pok-zero' },
-        { team: 'КС', task: 'Клиентский сервис: настройка сегмента без доработок', tbd: true },
         { team: 'ЦКО', task: 'ЛК: Комбо-набор с Евой и другие услуги Евы', tbd: true, dependsOn: ['bft', 'cjm'] },
         { team: 'ЦКО', task: 'ЛК: Комбо-набор с 5G и другие услуги 5G', tbd: true, dependsOn: ['bft', 'cjm'] },
         { team: 'ЦКО', task: 'ЛК: Комбо-набор с МегаКино и другие услуги МегаКино', tbd: true, dependsOn: ['bft', 'cjm'] },
@@ -48,7 +47,7 @@ window.ROADMAP_DATA = {
       title: 'Core. Качество и запуск',
       rows: [
         { team: 'ФТ', task: 'Тестирование', start: '2026-11-09', end: '2026-12-30' },
-        { team: 'ФТ', task: 'Тестирование после запуска', start: '2027-01-11', end: '2027-01-26', later: true },
+        { team: 'ФТ', task: 'Тестирование после запуска', start: '2027-01-11', end: '2027-02-14' },
       ],
     },
   ],

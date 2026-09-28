@@ -81,19 +81,6 @@
   });
   const depAt = anchorGeom ? anchorGeom.left + anchorGeom.width : null;
 
-  let releaseRow = null;
-  let releaseLen = -1;
-  D.blocks.forEach((block) => {
-    block.rows.forEach((row) => {
-      if (!row.start || !row.end || row.tbd) return;
-      const len = Date.parse(`${row.end}T00:00:00Z`) - Date.parse(`${row.start}T00:00:00Z`);
-      if (len > releaseLen) {
-        releaseLen = len;
-        releaseRow = row;
-      }
-    });
-  });
-
   document.title = D.title;
   const h1 = document.querySelector('.head h1');
   const sub = document.querySelector('.head .sub');
@@ -135,6 +122,7 @@
       }
       if (dependsOnPrep) note += '<span class="task-note link">Зависит от формирования БФТ и формирования CJM</span>';
       if (isPokSource) note += '<span class="task-note source">От этой работы зависят задачи ЛК</span>';
+      const laneMeta = `${row.id ? ` data-id="${esc(row.id)}"` : ''}${dependsOnPrep ? ' data-prep="1"' : ''}`;
       html += `<div class="team${group}">${esc(row.team)}</div>`;
       html += `<div class="task${group}"><span class="task-name">${esc(row.task)}</span>${note}</div>`;
       const depTick = dependsOnBss && depAt != null
@@ -143,7 +131,7 @@
       if (row.tbd) {
         const laneDep = dependsOnBss ? ' dep' : '';
         const tbdCls = orange ? ' dep' : isPokSource ? ' source' : '';
-        html += `<div class="lane${laneDep}${group}">${depTick}</div>`;
+        html += `<div class="lane${laneDep}${group}"${laneMeta}>${depTick}</div>`;
         html += `<div class="tbd-cell${group}"><span class="tbd${tbdCls}">TBD</span></div>`;
         return;
       }
@@ -158,13 +146,63 @@
       const flag = row.id === 'bss-core' && depAt != null
         ? `<span class="dep-flag" style="left:calc(${depAt.toFixed(4)}% + 10px)">От этой работы зависят задачи ЦКО</span>`
         : '';
-      const release = row === releaseRow
-        ? `<span class="release-mark" style="left:calc(${(geom.left + geom.width).toFixed(4)}% + 8px)"><b>Релиз</b><span>может сдвинуться из-за оценки других задач</span></span>`
+      const release = row.release
+        ? `<span class="release-mark" style="left:${(geom.left + geom.width).toFixed(4)}%"><b>Релиз</b><span>может сдвинуться из-за оценки других задач</span></span>`
         : '';
-      html += `<div class="lane${dependsOnBss ? ' dep' : ''}${group}"><i class="${cls}" style="${geom.style}"></i>${depTick}${flag}${release}</div>`;
+      html += `<div class="lane${dependsOnBss ? ' dep' : ''}${group}"${laneMeta}><i class="${cls}" style="${geom.style}"></i>${depTick}${flag}${release}</div>`;
       html += `<div class="tbd-cell${group}"></div>`;
     });
   });
 
   chart.innerHTML = html;
+  drawPrepLinks(chart);
+
+  function drawPrepLinks(root) {
+    const targets = [...root.querySelectorAll('.lane[data-prep]')];
+    const sources = ['bft', 'cjm']
+      .map((id) => root.querySelector(`.lane[data-id="${id}"] .bar`))
+      .filter(Boolean);
+    if (!targets.length || !sources.length) return;
+    const crect = root.getBoundingClientRect();
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'prep-links');
+    svg.setAttribute('width', String(crect.width));
+    svg.setAttribute('height', String(crect.height));
+    root.appendChild(svg);
+    const ns = 'http://www.w3.org/2000/svg';
+    sources.forEach((bar, index) => {
+      const br = bar.getBoundingClientRect();
+      const x0 = br.right - crect.left;
+      const y0 = br.top + br.height / 2 - crect.top;
+      const laneRight = targets[0].getBoundingClientRect().right - crect.left;
+      const gutter = laneRight - 3 - index * 7;
+      const yLast = targets[targets.length - 1].getBoundingClientRect();
+      const yEnd = yLast.top + yLast.height / 2 - crect.top;
+      const spine = document.createElementNS(ns, 'path');
+      spine.setAttribute('d', `M ${x0.toFixed(1)} ${y0.toFixed(1)} H ${gutter.toFixed(1)} V ${yEnd.toFixed(1)}`);
+      spine.setAttribute('fill', 'none');
+      spine.setAttribute('stroke', '#1c2430');
+      spine.setAttribute('stroke-width', '1.5');
+      if (index === 1) spine.setAttribute('stroke-dasharray', '4 3');
+      svg.appendChild(spine);
+      targets.forEach((lane) => {
+        const lr = lane.getBoundingClientRect();
+        const y = lr.top + lr.height / 2 - crect.top;
+        const xTip = gutter - 16;
+        const tick = document.createElementNS(ns, 'path');
+        tick.setAttribute('d', `M ${gutter.toFixed(1)} ${y.toFixed(1)} H ${xTip.toFixed(1)}`);
+        tick.setAttribute('fill', 'none');
+        tick.setAttribute('stroke', '#1c2430');
+        tick.setAttribute('stroke-width', '1.5');
+        if (index === 1) tick.setAttribute('stroke-dasharray', '4 3');
+        svg.appendChild(tick);
+        const head = document.createElementNS(ns, 'path');
+        head.setAttribute('d', `M ${(xTip + 6).toFixed(1)} ${(y - 3.5).toFixed(1)} L ${xTip.toFixed(1)} ${y.toFixed(1)} L ${(xTip + 6).toFixed(1)} ${(y + 3.5).toFixed(1)}`);
+        head.setAttribute('fill', 'none');
+        head.setAttribute('stroke', '#1c2430');
+        head.setAttribute('stroke-width', '1.5');
+        svg.appendChild(head);
+      });
+    });
+  }
 })();

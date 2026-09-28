@@ -86,6 +86,7 @@ h1 {
   border: 1px solid var(--line);
   border-radius: 10px;
   overflow: hidden;
+  position: relative;
 }
 
 .colhead {
@@ -260,12 +261,22 @@ h1 {
 .release-mark {
   position: absolute;
   top: 50%;
-  transform: translateY(-50%);
+  transform: translate(-100%, -50%);
   display: flex;
   align-items: center;
   gap: 6px;
-  z-index: 2;
+  z-index: 3;
+  padding: 1px 8px 1px 4px;
+  background: #fff;
+  border-radius: 8px;
   white-space: nowrap;
+}
+
+.prep-links {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
 }
 
 .release-mark b {
