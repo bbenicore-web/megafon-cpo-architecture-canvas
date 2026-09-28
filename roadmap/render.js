@@ -81,6 +81,19 @@
   });
   const depAt = anchorGeom ? anchorGeom.left + anchorGeom.width : null;
 
+  let releaseRow = null;
+  let releaseLen = -1;
+  D.blocks.forEach((block) => {
+    block.rows.forEach((row) => {
+      if (!row.start || !row.end || row.tbd) return;
+      const len = Date.parse(`${row.end}T00:00:00Z`) - Date.parse(`${row.start}T00:00:00Z`);
+      if (len > releaseLen) {
+        releaseLen = len;
+        releaseRow = row;
+      }
+    });
+  });
+
   document.title = D.title;
   const h1 = document.querySelector('.head h1');
   const sub = document.querySelector('.head .sub');
@@ -108,6 +121,8 @@
       const ids = depIds(row);
       const dependsOnBss = ids.includes('bss-core');
       const dependsOnPok = ids.includes('pok-combo') || ids.includes('pok-zero');
+      const dependsOnPrep = ids.includes('bft') || ids.includes('cjm');
+      const orange = dependsOnBss || dependsOnPok;
       const isPokSource = row.id === 'pok-combo' || row.id === 'pok-zero';
       let note = '';
       if (row.requirementsOpen) note += '<span class="task-note open">Требования не финализированы</span>';
@@ -118,6 +133,7 @@
       } else if (dependsOnPok) {
         note += '<span class="task-note dep">Зависит от ПОК: комбо-наборы и нулевой профиль</span>';
       }
+      if (dependsOnPrep) note += '<span class="task-note link">Зависит от формирования БФТ и формирования CJM</span>';
       if (isPokSource) note += '<span class="task-note source">От этой работы зависят задачи ЛК</span>';
       html += `<div class="team${group}">${esc(row.team)}</div>`;
       html += `<div class="task${group}"><span class="task-name">${esc(row.task)}</span>${note}</div>`;
@@ -126,7 +142,7 @@
         : '';
       if (row.tbd) {
         const laneDep = dependsOnBss ? ' dep' : '';
-        const tbdCls = ids.length ? ' dep' : isPokSource ? ' source' : '';
+        const tbdCls = orange ? ' dep' : isPokSource ? ' source' : '';
         html += `<div class="lane${laneDep}${group}">${depTick}</div>`;
         html += `<div class="tbd-cell${group}"><span class="tbd${tbdCls}">TBD</span></div>`;
         return;
@@ -135,14 +151,17 @@
         'bar',
         row.later ? 'later' : '',
         row.requirementsOpen ? 'open' : '',
-        ids.length ? 'dep' : '',
+        orange ? 'dep' : '',
         row.id === 'bss-core' ? 'anchor' : '',
       ].filter(Boolean).join(' ');
       const geom = barGeom(row);
       const flag = row.id === 'bss-core' && depAt != null
         ? `<span class="dep-flag" style="left:calc(${depAt.toFixed(4)}% + 10px)">От этой работы зависят задачи ЦКО</span>`
         : '';
-      html += `<div class="lane${dependsOnBss ? ' dep' : ''}${group}"><i class="${cls}" style="${geom.style}"></i>${depTick}${flag}</div>`;
+      const release = row === releaseRow
+        ? `<span class="release-mark" style="left:calc(${(geom.left + geom.width).toFixed(4)}% + 8px)"><b>Релиз</b><span>может сдвинуться из-за оценки других задач</span></span>`
+        : '';
+      html += `<div class="lane${dependsOnBss ? ' dep' : ''}${group}"><i class="${cls}" style="${geom.style}"></i>${depTick}${flag}${release}</div>`;
       html += `<div class="tbd-cell${group}"></div>`;
     });
   });
