@@ -27,6 +27,14 @@
   const chart = document.querySelector('.chart');
   if (!chart) return;
 
+  let anchorGeom = null;
+  D.blocks.forEach((block) => {
+    block.rows.forEach((row) => {
+      if (row.id === 'bss-core') anchorGeom = barGeom(row);
+    });
+  });
+  const depAt = anchorGeom ? anchorGeom.left + anchorGeom.width : null;
+
   document.title = D.title;
   const h1 = document.querySelector('.head h1');
   const sub = document.querySelector('.head .sub');
@@ -57,16 +65,34 @@
     html += `<div class="block-title">${esc(block.title)}</div>`;
     block.rows.forEach((row, idx) => {
       const group = idx === 0 ? ' group' : '';
+      const note = row.requirementsOpen
+        ? '<span class="task-note open">Требования не финализированы</span>'
+        : row.dependsOn === 'bss-core'
+          ? '<span class="task-note dep">Зависит от конфигурирования BSS CORE</span>'
+          : '';
       html += `<div class="team${group}">${esc(row.team)}</div>`;
-      html += `<div class="task${group}">${esc(row.task)}</div>`;
+      html += `<div class="task${group}"><span class="task-name">${esc(row.task)}</span>${note}</div>`;
+      const depTick = row.dependsOn === 'bss-core' && depAt != null
+        ? `<span class="dep-tick" style="left:${depAt.toFixed(4)}%"></span>`
+        : '';
       if (row.tbd) {
-        html += `<div class="lane${group}"></div>`;
+        const laneDep = row.dependsOn === 'bss-core' ? ' dep' : '';
+        html += `<div class="lane${laneDep}${group}">${depTick}</div>`;
         html += `<div class="tbd-cell${group}"><span class="tbd">TBD</span></div>`;
         return;
       }
-      const cls = row.later ? 'bar later' : 'bar';
+      const cls = [
+        'bar',
+        row.later ? 'later' : '',
+        row.requirementsOpen ? 'open' : '',
+        row.dependsOn === 'bss-core' ? 'dep' : '',
+        row.id === 'bss-core' ? 'anchor' : '',
+      ].filter(Boolean).join(' ');
       const geom = barGeom(row);
-      html += `<div class="lane${group}"><i class="${cls}" style="${geom.style}"></i></div>`;
+      const flag = row.id === 'bss-core' && depAt != null
+        ? `<span class="dep-flag" style="left:calc(${depAt.toFixed(4)}% + 10px)">От этой работы зависят задачи ЦКО</span>`
+        : '';
+      html += `<div class="lane${row.dependsOn === 'bss-core' ? ' dep' : ''}${group}"><i class="${cls}" style="${geom.style}"></i>${depTick}${flag}</div>`;
       html += `<div class="tbd-cell${group}"></div>`;
     });
   });
