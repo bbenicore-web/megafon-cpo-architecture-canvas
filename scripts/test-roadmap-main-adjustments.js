@@ -13,6 +13,19 @@ vm.runInNewContext(
 const rows = context.window.ROADMAP_DATA.blocks.flatMap((block) => block.rows);
 const task = (name) => rows.find((row) => row.task === name);
 const plain = (value) => JSON.parse(JSON.stringify(value));
+const block = (name) => context.window.ROADMAP_DATA.blocks.find((item) => item.title === name);
+
+assert.equal(task('Формирование БФТ').start, '2026-07-01');
+assert.equal(task('Формирование CJM').start, '2026-07-01');
+
+assert.deepEqual(
+  plain(block('Core. Платформа BSS').rows.slice(-2).map((row) => row.id)),
+  ['pok-combo', 'pok-zero'],
+);
+assert.equal(
+  block('Самообслуживание. Новая линейка').rows.some((row) => row.id === 'pok-combo' || row.id === 'pok-zero'),
+  false,
+);
 
 assert.deepEqual(
   plain(task('САЙТ: Новая карточка тарифа').roles),
@@ -57,5 +70,11 @@ assert.deepEqual(
     { role: 'SA', start: '2026-10-26', end: '2026-11-06' },
   ],
 );
+
+const css = fs.readFileSync(path.join(root, 'roadmap', 'roadmap.css'), 'utf8');
+assert.match(css, /\.team\s*\{[^}]*font-size:\s*12px/s);
+assert.match(css, /\.task\s*\{[^}]*font-size:\s*12px/s);
+assert.match(css, /\.task-note\s*\{[^}]*font-size:\s*10px/s);
+assert.match(css, /\.role-segment span\s*\{[^}]*font-size:\s*8px/s);
 
 console.log('Original roadmap requested adjustments: PASS');
