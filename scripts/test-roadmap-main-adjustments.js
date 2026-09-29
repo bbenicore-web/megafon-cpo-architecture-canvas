@@ -76,6 +76,9 @@ assert.match(css, /\.team\s*\{[^}]*font-size:\s*clamp\(15px,\s*0\.78vw,\s*30px\)
 assert.match(css, /\.task\s*\{[^}]*font-size:\s*clamp\(15px,\s*0\.78vw,\s*30px\)/s);
 assert.match(css, /\.task-note\s*\{[^}]*font-size:\s*clamp\(12px,\s*0\.625vw,\s*24px\)/s);
 assert.match(css, /\.role-segment span\s*\{[^}]*font-size:\s*clamp\(10px,\s*0\.52vw,\s*20px\)/s);
-assert.match(css, /grid-template-columns:\s*10% 45% minmax\(0,\s*1fr\) 5%/s);
+assert.match(css, /grid-template-columns:\s*10% 37% 48% 5%/s);
+assert.match(css, /\.months span\s*\{[^}]*white-space:\s*nowrap/s);
+assert.match(css, /\.team\s*\{[^}]*white-space:\s*nowrap/s);
+assert.match(css, /\.release-mark span\s*\{[^}]*white-space:\s*nowrap/s);
 
 console.log('Original roadmap requested adjustments: PASS');
