@@ -47,4 +47,16 @@
       ],
     },
   );
+
+  const quality = data.blocks.find(
+    (item) => item.title === 'Core. Качество и запуск',
+  );
+  quality.rows = [
+    {
+      team: 'ФТ',
+      task: 'Тестирование',
+      start: '2026-11-01',
+      end: '2027-02-15',
+    },
+  ];
 })();
