@@ -171,8 +171,11 @@
       const flag = row.id === 'bss-core' && depAt != null
         ? `<span class="dep-flag" style="left:calc(${depAt.toFixed(4)}% + 10px)">От этой работы зависят задачи ЦКО</span>`
         : '';
+      const releaseAt = row.releaseDate
+        ? pct(row.releaseDate)
+        : geom.left + geom.width;
       const release = row.release
-        ? `<span class="release-mark" style="left:calc(${(geom.left + geom.width).toFixed(4)}% + 6px)"><b>Релиз</b><span>может сдвинуться<br>из-за оценки<br>других задач</span></span>`
+        ? `<span class="release-mark" style="left:calc(${releaseAt.toFixed(4)}% + 6px)"><b>Релиз</b><span>может сдвинуться<br>из-за оценки<br>других задач</span></span>`
         : '';
       html += `<div class="lane${dependsOnBss ? ' dep' : ''}${group}"${laneMeta}>${dependencyLine}${roleBars}${inlineTbd}${depTick}${flag}${release}</div>`;
       html += `<div class="tbd-cell${group}"></div>`;
