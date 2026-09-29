@@ -24,10 +24,16 @@ assert.equal(
 );
 
 const originalOutsideSelfService = original.blocks.filter(
-  (block) => block.title !== 'Самообслуживание. Новая линейка',
+  (block) => ![
+    'Самообслуживание. Новая линейка',
+    'Core. Качество и запуск',
+  ].includes(block.title),
 );
 const alternateOutsideSelfService = alternate.blocks.filter(
-  (block) => block.title !== 'Самообслуживание. Новая линейка',
+  (block) => ![
+    'Самообслуживание. Новая линейка',
+    'Core. Качество и запуск',
+  ].includes(block.title),
 );
 assert.deepEqual(alternateOutsideSelfService, originalOutsideSelfService);
 
@@ -65,6 +71,18 @@ assert.deepEqual(
   ],
 );
 assert.equal(task('ЛК: Новый экран «Мой тариф»').releaseDate, '2027-01-13');
+
+const quality = alternate.blocks.find(
+  (item) => item.title === 'Core. Качество и запуск',
+);
+assert.deepEqual(quality.rows, [
+  {
+    team: 'ФТ',
+    task: 'Тестирование',
+    start: '2026-11-01',
+    end: '2027-02-15',
+  },
+]);
 
 const originalSelfService = original.blocks.find(
   (item) => item.title === 'Самообслуживание. Новая линейка',
