@@ -24,6 +24,14 @@
       .replace(/"/g, '&quot;');
   }
 
+  function roleClass(role) {
+    return role.toLowerCase().replace(/[^a-z]/g, '') || 'other';
+  }
+
+  function roleLabel(role) {
+    return role === 'Content' ? 'Cont' : role === 'UX/UI' ? 'UX' : role;
+  }
+
   const chart = document.querySelector('.chart');
   if (!chart) return;
 
@@ -122,6 +130,10 @@
       }
       if (dependsOnPrep) note += '<span class="task-note link">Зависит от формирования БФТ и формирования CJM</span>';
       if (isPokSource) note += '<span class="task-note source">От этой работы зависят задачи ЛК</span>';
+      if (row.roles) {
+        const roles = [...new Set(row.roles.map((segment) => roleLabel(segment.role)))];
+        note += `<span class="task-note roles">${esc(roles.join(' → '))}${row.partialTbd ? ' → Dev: TBD' : ''}</span>`;
+      }
       const laneMeta = `${row.id ? ` data-id="${esc(row.id)}"` : ''}${dependsOnPrep ? ' data-prep="1"' : ''}`;
       html += `<div class="team${group}">${esc(row.team)}</div>`;
       html += `<div class="task${group}"${dependsOnPrep ? ' data-prep="1"' : ''}><span class="task-name">${esc(row.task)}</span>${note}</div>`;
@@ -143,14 +155,23 @@
         row.id === 'bss-core' ? 'anchor' : '',
       ].filter(Boolean).join(' ');
       const geom = barGeom(row);
+      const roleBars = row.roles
+        ? row.roles.map((segment) => {
+          const segmentGeom = barGeom(segment);
+          return `<i class="role-segment role-${roleClass(segment.role)}" style="${segmentGeom.style}" title="${esc(segment.role)}: ${esc(segment.start)} — ${esc(segment.end)}"><span>${esc(roleLabel(segment.role))}</span></i>`;
+        }).join('')
+        : `<i class="${cls}" style="${geom.style}"></i>`;
+      const dependencyLine = row.roles && orange
+        ? `<i class="dependency-line" style="${geom.style}"></i>`
+        : '';
       const flag = row.id === 'bss-core' && depAt != null
         ? `<span class="dep-flag" style="left:calc(${depAt.toFixed(4)}% + 10px)">От этой работы зависят задачи ЦКО</span>`
         : '';
       const release = row.release
         ? `<span class="release-mark" style="left:calc(${(geom.left + geom.width).toFixed(4)}% + 6px)"><b>Релиз</b><span>может сдвинуться из-за оценки других задач</span></span>`
         : '';
-      html += `<div class="lane${dependsOnBss ? ' dep' : ''}${group}"${laneMeta}><i class="${cls}" style="${geom.style}"></i>${depTick}${flag}${release}</div>`;
-      html += `<div class="tbd-cell${group}"></div>`;
+      html += `<div class="lane${dependsOnBss ? ' dep' : ''}${group}"${laneMeta}>${dependencyLine}${roleBars}${depTick}${flag}${release}</div>`;
+      html += `<div class="tbd-cell${group}">${row.partialTbd ? '<span class="tbd dep">TBD</span>' : ''}</div>`;
     });
   });
 

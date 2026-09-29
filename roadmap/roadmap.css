@@ -186,6 +186,7 @@ h1 {
 .task-note.dep,
 .task-note.source { color: #c45e00; }
 .task-note.link { color: #1c2430; }
+.task-note.roles { color: #576170; }
 
 .team.group, .task.group, .lane.group, .tbd-cell.group {
   border-top: 1px solid #d8dde4;
@@ -221,6 +222,45 @@ h1 {
 
 .bar.dep {
   background: #f08a24;
+}
+
+.role-segment {
+  position: absolute;
+  top: 50%;
+  height: 14px;
+  margin-top: -7px;
+  border-radius: 2px;
+  color: #fff;
+  font-style: normal;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.role-segment span {
+  position: absolute;
+  inset: 0 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 7px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.role-uxui { background: #3f72c6; }
+.role-sa { background: #7557b8; }
+.role-dev { background: #56b870; }
+.role-qa { background: #208d87; }
+.role-content { background: #d28b22; }
+
+.dependency-line {
+  position: absolute;
+  top: 50%;
+  height: 2px;
+  margin-top: 6px;
+  background: #f08a24;
+  z-index: 2;
 }
 
 .bar.anchor::after {
