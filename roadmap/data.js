@@ -16,7 +16,10 @@ window.ROADMAP_DATA = {
     {
       title: 'Core. Платформа BSS',
       rows: [
-        { team: 'BSS', task: 'Аналитика BSS', start: '2026-10-05', end: '2026-10-16' },
+        {
+          team: 'BSS', task: 'Аналитика BSS', start: '2026-10-05', end: '2026-10-16',
+          comment: 'От этой задачи зависит аналитика ЦКО',
+        },
         { team: 'BSS', task: 'Конфигурирование BSS CORE', start: '2026-10-19', end: '2026-11-16', id: 'bss-core' },
         { team: 'ПОК', task: 'Настройка комбо-наборов ПОК', tbd: true, id: 'pok-combo' },
         { team: 'ПОК', task: 'Настройка нулевого профиля ПОК', tbd: true, id: 'pok-zero' },
@@ -62,7 +65,7 @@ window.ROADMAP_DATA = {
     {
       title: 'Самообслуживание. Новая линейка',
       rows: [
-        { team: 'ЦКО', task: 'Анализ технического решения', start: '2026-10-01', end: '2026-10-15' },
+        { team: 'ЦКО', task: 'Анализ технического решения', start: '2026-10-01', end: '2026-11-01' },
         {
           team: 'ЦКО', task: 'ЛК: Новая детальная страница тарифа в смене тарифа', start: '2026-10-19', end: '2026-12-25',
           dependsOn: ['bss-core', 'pok-combo', 'pok-zero'],

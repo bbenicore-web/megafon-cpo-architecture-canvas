@@ -189,7 +189,6 @@ h1 {
 .task-note.dep,
 .task-note.source { color: #c45e00; }
 .task-note.link { color: #1c2430; }
-.task-note.roles { color: #576170; }
 
 .team.group, .task.group, .lane.group, .tbd-cell.group {
   border-top: 1px solid #d8dde4;
@@ -266,6 +265,22 @@ h1 {
   z-index: 2;
 }
 
+.inline-tbd {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  padding: 2px 8px;
+  border: 1.5px solid #f08a24;
+  border-radius: 10px;
+  background: #fff4e6;
+  color: #c45e00;
+  font-size: clamp(8px, 0.42vw, 16px);
+  font-weight: 700;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
 .bar.anchor::after {
   content: "";
   position: absolute;
@@ -329,11 +344,11 @@ h1 {
 
 .release-mark span {
   color: #1c2430;
-  font-size: clamp(10px, 0.52vw, 20px);
+  font-size: clamp(8px, 0.42vw, 16px);
   font-weight: 600;
   line-height: 1.05;
   background: #fff;
-  white-space: nowrap;
+  text-align: left;
 }
 
 .tbd-cell {

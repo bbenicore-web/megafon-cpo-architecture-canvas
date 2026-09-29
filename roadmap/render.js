@@ -121,6 +121,7 @@
       const isPokSource = row.id === 'pok-combo' || row.id === 'pok-zero';
       let note = '';
       if (row.requirementsOpen) note += '<span class="task-note open">Требования не финализированы</span>';
+      if (row.comment) note += `<span class="task-note source">${esc(row.comment)}</span>`;
       if (dependsOnBss && dependsOnPok) {
         note += '<span class="task-note dep">Зависит от BSS CORE и от ПОК: комбо-наборы, нулевой профиль</span>';
       } else if (dependsOnBss) {
@@ -130,10 +131,6 @@
       }
       if (dependsOnPrep) note += '<span class="task-note link">Зависит от формирования БФТ и формирования CJM</span>';
       if (isPokSource) note += '<span class="task-note source">От этой работы зависят задачи ЛК</span>';
-      if (row.roles) {
-        const roles = [...new Set(row.roles.map((segment) => roleLabel(segment.role)))];
-        note += `<span class="task-note roles">${esc(roles.join(' → '))}${row.partialTbd ? ' → Dev: TBD' : ''}</span>`;
-      }
       const laneMeta = `${row.id ? ` data-id="${esc(row.id)}"` : ''}${dependsOnPrep ? ' data-prep="1"' : ''}`;
       html += `<div class="team${group}">${esc(row.team)}</div>`;
       html += `<div class="task${group}"${dependsOnPrep ? ' data-prep="1"' : ''}><span class="task-name">${esc(row.task)}</span>${note}</div>`;
@@ -164,14 +161,21 @@
       const dependencyLine = row.roles && orange
         ? `<i class="dependency-line" style="${geom.style}"></i>`
         : '';
+      const inlineTbd = row.partialTbd && row.roles
+        ? (() => {
+          const lastRole = barGeom(row.roles[row.roles.length - 1]);
+          const left = lastRole.left + lastRole.width;
+          return `<span class="inline-tbd" style="left:calc(${left.toFixed(4)}% + 6px)">сроки dev+qa tbd</span>`;
+        })()
+        : '';
       const flag = row.id === 'bss-core' && depAt != null
         ? `<span class="dep-flag" style="left:calc(${depAt.toFixed(4)}% + 10px)">От этой работы зависят задачи ЦКО</span>`
         : '';
       const release = row.release
-        ? `<span class="release-mark" style="left:calc(${(geom.left + geom.width).toFixed(4)}% + 6px)"><b>Релиз</b><span>может сдвинуться из-за оценки других задач</span></span>`
+        ? `<span class="release-mark" style="left:calc(${(geom.left + geom.width).toFixed(4)}% + 6px)"><b>Релиз</b><span>может сдвинуться<br>из-за оценки<br>других задач</span></span>`
         : '';
-      html += `<div class="lane${dependsOnBss ? ' dep' : ''}${group}"${laneMeta}>${dependencyLine}${roleBars}${depTick}${flag}${release}</div>`;
-      html += `<div class="tbd-cell${group}">${row.partialTbd ? '<span class="tbd dep">TBD</span>' : ''}</div>`;
+      html += `<div class="lane${dependsOnBss ? ' dep' : ''}${group}"${laneMeta}>${dependencyLine}${roleBars}${inlineTbd}${depTick}${flag}${release}</div>`;
+      html += `<div class="tbd-cell${group}"></div>`;
     });
   });
 
