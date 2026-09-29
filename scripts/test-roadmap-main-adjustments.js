@@ -72,9 +72,10 @@ assert.deepEqual(
 );
 
 const css = fs.readFileSync(path.join(root, 'roadmap', 'roadmap.css'), 'utf8');
-assert.match(css, /\.team\s*\{[^}]*font-size:\s*12px/s);
-assert.match(css, /\.task\s*\{[^}]*font-size:\s*12px/s);
-assert.match(css, /\.task-note\s*\{[^}]*font-size:\s*10px/s);
-assert.match(css, /\.role-segment span\s*\{[^}]*font-size:\s*8px/s);
+assert.match(css, /\.team\s*\{[^}]*font-size:\s*15px/s);
+assert.match(css, /\.task\s*\{[^}]*font-size:\s*15px/s);
+assert.match(css, /\.task-note\s*\{[^}]*font-size:\s*12px/s);
+assert.match(css, /\.role-segment span\s*\{[^}]*font-size:\s*10px/s);
+assert.match(css, /grid-template-columns:\s*190px minmax\(650px,\s*760px\)/s);
 
 console.log('Original roadmap requested adjustments: PASS');
