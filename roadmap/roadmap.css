@@ -79,7 +79,7 @@ h1 {
   min-height: 0;
   height: 100%;
   display: grid;
-  grid-template-columns: 10% 45% minmax(0, 1fr) 5%;
+  grid-template-columns: 10% 37% 48% 5%;
   grid-template-rows: auto;
   grid-auto-rows: minmax(0, 1fr);
   background: #fff;
@@ -126,6 +126,7 @@ h1 {
   padding: 2px 0 7px;
   font-size: clamp(14px, 0.73vw, 28px);
   color: var(--ink);
+  white-space: nowrap;
 }
 
 .block-title {
@@ -158,6 +159,7 @@ h1 {
   font-size: clamp(15px, 0.78vw, 30px);
   font-weight: 600;
   line-height: 1.15;
+  white-space: nowrap;
 }
 
 .task {
@@ -327,11 +329,11 @@ h1 {
 
 .release-mark span {
   color: #1c2430;
-  max-width: 260px;
   font-size: clamp(10px, 0.52vw, 20px);
   font-weight: 600;
   line-height: 1.05;
   background: #fff;
+  white-space: nowrap;
 }
 
 .tbd-cell {
