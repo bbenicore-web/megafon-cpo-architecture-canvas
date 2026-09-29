@@ -49,8 +49,13 @@ assert.deepEqual(
     team: 'ЦКО',
     task: 'Анализ технического решения',
     start: '2026-10-01',
-    end: '2026-10-15',
+    end: '2026-11-01',
   },
+);
+
+assert.equal(
+  task('Аналитика BSS').comment,
+  'От этой задачи зависит аналитика ЦКО',
 );
 
 assert.deepEqual(
@@ -79,6 +84,11 @@ assert.match(css, /\.role-segment span\s*\{[^}]*font-size:\s*clamp\(10px,\s*0\.5
 assert.match(css, /grid-template-columns:\s*10% 37% 48% 5%/s);
 assert.match(css, /\.months span\s*\{[^}]*white-space:\s*nowrap/s);
 assert.match(css, /\.team\s*\{[^}]*white-space:\s*nowrap/s);
-assert.match(css, /\.release-mark span\s*\{[^}]*white-space:\s*nowrap/s);
+assert.match(css, /\.release-mark span\s*\{[^}]*font-size:\s*clamp\(8px,\s*0\.42vw,\s*16px\)/s);
+
+const renderer = fs.readFileSync(path.join(root, 'roadmap', 'render.js'), 'utf8');
+assert.doesNotMatch(renderer, /task-note roles/);
+assert.match(renderer, /сроки dev\+qa tbd/);
+assert.match(renderer, /может сдвинуться<br>из-за оценки<br>других задач/);
 
 console.log('Original roadmap requested adjustments: PASS');
