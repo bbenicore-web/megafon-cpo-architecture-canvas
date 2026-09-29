@@ -17,9 +17,10 @@ assert.equal(data.range, 'Июль 2026 — Февраль 2027');
 
 const rows = data.blocks.flatMap((block) => block.rows);
 const task = (name) => rows.find((row) => row.task === name);
+const plain = (value) => JSON.parse(JSON.stringify(value));
 
 assert.deepEqual(
-  task('ЛК: Новый экран «Мой тариф»').roles,
+  plain(task('ЛК: Новый экран «Мой тариф»').roles),
   [
     { role: 'UX/UI', start: '2026-11-02', end: '2026-11-20' },
     { role: 'SA', start: '2026-11-23', end: '2026-12-11' },
@@ -30,7 +31,7 @@ assert.deepEqual(
 assert.equal(task('ЛК: Новый экран «Мой тариф»').releaseDate, '2027-01-13');
 
 assert.deepEqual(
-  task('ЛК: Комбо-наборы в разделах «МегаСилы» и «Чек»').roles,
+  plain(task('ЛК: Комбо-наборы в разделах «МегаСилы» и «Чек»').roles),
   [
     { role: 'UX/UI', start: '2026-11-16', end: '2026-12-04' },
     { role: 'SA', start: '2026-12-07', end: '2026-12-25' },
@@ -42,7 +43,7 @@ assert.deepEqual(
 const services = task('ЛК: Комбо-наборы в разделе «Услуги»');
 assert.equal(services.partialTbd, true);
 assert.deepEqual(
-  services.roles,
+  plain(services.roles),
   [
     { role: 'UX/UI', start: '2026-11-16', end: '2026-12-04' },
     { role: 'SA', start: '2026-12-07', end: '2026-12-25' },
@@ -55,5 +56,8 @@ const index = fs.readFileSync(indexPath, 'utf8');
 assert.match(index, /href="\.\.\/roadmap\/roadmap\.css"/);
 assert.match(index, /src="data\.js"/);
 assert.match(index, /src="\.\.\/roadmap\/render\.js"/);
+
+const navigation = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+assert.match(navigation, /href="roadmap-no-extra-resources\/index\.html"/);
 
 console.log('Alternate roadmap data and page wiring: PASS');
