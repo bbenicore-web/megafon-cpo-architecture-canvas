@@ -7,8 +7,8 @@ window.ROADMAP_DATA = {
     {
       title: 'Core. Подготовка продукта',
       rows: [
-        { team: 'Основная линейка', task: 'Формирование БФТ', start: '2026-09-14', end: '2026-09-25', requirementsOpen: true, id: 'bft' },
-        { team: 'КО', task: 'Формирование CJM', start: '2026-09-17', end: '2026-09-25', requirementsOpen: true, id: 'cjm' },
+        { team: 'Основная линейка', task: 'Формирование БФТ', start: '2026-07-01', end: '2026-09-25', requirementsOpen: true, id: 'bft' },
+        { team: 'КО', task: 'Формирование CJM', start: '2026-07-01', end: '2026-09-25', requirementsOpen: true, id: 'cjm' },
         { team: 'Архитектура', task: 'Формирование архитектуры решения (ADR)', start: '2026-09-21', end: '2026-10-02' },
         { team: 'Архитектура', task: 'Формирование ТЗ', start: '2026-09-28', end: '2026-10-02' },
       ],
@@ -18,6 +18,8 @@ window.ROADMAP_DATA = {
       rows: [
         { team: 'BSS', task: 'Аналитика BSS', start: '2026-10-05', end: '2026-10-16' },
         { team: 'BSS', task: 'Конфигурирование BSS CORE', start: '2026-10-19', end: '2026-11-16', id: 'bss-core' },
+        { team: 'ПОК', task: 'Настройка комбо-наборов ПОК', tbd: true, id: 'pok-combo' },
+        { team: 'ПОК', task: 'Настройка нулевого профиля ПОК', tbd: true, id: 'pok-zero' },
       ],
     },
     {
@@ -99,8 +101,6 @@ window.ROADMAP_DATA = {
             { role: 'QA', start: '2026-12-21', end: '2027-01-13' },
           ],
         },
-        { team: 'ПОК', task: 'Настройка комбо-наборов ПОК', tbd: true, id: 'pok-combo' },
-        { team: 'ПОК', task: 'Настройка нулевого профиля ПОК', tbd: true, id: 'pok-zero' },
         { team: 'ЦКО', task: 'ЛК: Комбо-набор с Евой и другие услуги Евы', tbd: true, dependsOn: ['bft', 'cjm'] },
         { team: 'ЦКО', task: 'ЛК: Комбо-набор с 5G и другие услуги 5G', tbd: true, dependsOn: ['bft', 'cjm'] },
         { team: 'ЦКО', task: 'ЛК: Комбо-набор с МегаКино и другие услуги МегаКино', tbd: true, dependsOn: ['bft', 'cjm'] },
