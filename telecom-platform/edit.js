@@ -184,7 +184,7 @@
   }
 
   function canDelete(path, type) {
-    return ['text', 'domain', 'journey', 'capability', 'channel', 'metric', 'layer', 'block'].includes(type)
+    return ['text', 'domain', 'journey', 'capability', 'channel', 'team', 'metric', 'layer', 'block'].includes(type)
       && (type !== 'text' || /\.items\.\d+$/.test(path));
   }
 
@@ -195,6 +195,7 @@
       journey: 'Удалить шаг',
       capability: 'Удалить capability',
       channel: 'Удалить канал',
+      team: 'Удалить команду',
       metric: 'Удалить колонку',
       layer: 'Удалить слой',
       block: 'Скрыть блок',
@@ -350,7 +351,7 @@
       html += fixSelect('Цвет', 'ef-tone', val.tone || 'blue', TONE_OPTIONS);
     } else if (type === 'journey') {
       html += fixField('Шаг сценария', 'ef-label', val.label);
-    } else if (type === 'capability' || type === 'channel') {
+    } else if (type === 'capability' || type === 'channel' || type === 'team') {
       html += fixField('Название', 'ef-label', val.label);
       html += fixSelect('Иконка', 'ef-icon', val.icon, ICON_OPTIONS);
     } else if (type === 'metric') {
@@ -391,7 +392,7 @@
         val.tone = readField('ef-tone');
       } else if (type === 'journey') {
         val.label = readField('ef-label');
-      } else if (type === 'capability' || type === 'channel') {
+      } else if (type === 'capability' || type === 'channel' || type === 'team') {
         val.label = readField('ef-label');
         val.icon = readField('ef-icon');
       } else if (type === 'metric') {
@@ -495,6 +496,9 @@
     });
     add('.layer[data-edit-path="center.layers.channels"] .channels', '+ Канал', () => {
       addToList('center.layers.channels.items', () => ({ id: newId('ch'), icon: 'globe', label: 'Новый канал' }), 'Канал добавлен');
+    });
+    add('.layer[data-edit-path="center.layers.teams"] .teams', '+ Команда', () => {
+      addToList('center.layers.teams.items', () => ({ id: newId('tm'), icon: 'user', label: 'Новая команда' }), 'Команда добавлена');
     });
     ['zones', 'tobe'].forEach((key) => {
       add(`[data-add="${key}.items"]`, '+ Пункт', () => {
