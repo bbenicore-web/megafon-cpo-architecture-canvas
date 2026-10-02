@@ -54,8 +54,8 @@ for (const [p, expectedType] of cases) {
 }
 
 const layers = data.center.layers;
-if (!Array.isArray(layers) || layers.length !== 4) {
-  console.log('FAIL center.layers must have 4 layers');
+if (!Array.isArray(layers) || layers.length !== 5) {
+  console.log('FAIL center.layers must have 5 layers');
   failed++;
 } else {
   console.log('OK center.layers length', layers.length);
@@ -128,11 +128,63 @@ if (sales[0].includes("'app'") || sales[0].includes("'cat'")) {
   process.exit(1);
 }
 console.log('OK sales selects checkout, payment, site, account');
-for (const id of ['activation:', 'self:', 'postsale:']) {
-  if (appSrc.includes(`${id} {`)) {
-    console.log('FAIL highlight still defined for', id);
+
+function relation(name) {
+  const match = appSrc.match(new RegExp(`${name}:\\s*\\{[^}]+\\}`));
+  if (!match) {
+    console.log('FAIL relation missing', name);
+    process.exit(1);
+  }
+  return match[0];
+}
+
+const discoveryTeams = relation('discovery');
+for (const id of ['tariffs', 'home']) {
+  if (!discoveryTeams.includes(`'${id}'`)) {
+    console.log('FAIL discovery team missing', id);
     process.exit(1);
   }
 }
-console.log('OK activation, self-service and post-sale do not highlight');
+const salesTeams = relation('sales');
+if (!salesTeams.includes("'become'")) {
+  console.log('FAIL sales team missing become');
+  process.exit(1);
+}
+const activation = relation('activation');
+if (!activation.includes("'become'") || activation.includes('journeys') || activation.includes('caps')) {
+  console.log('FAIL activation must highlight only become subscriber');
+  process.exit(1);
+}
+const selfService = relation('self');
+if (!selfService.includes("'monetization'") || selfService.includes('journeys')) {
+  console.log('FAIL self-service must highlight monetization');
+  process.exit(1);
+}
+const postSale = relation('postsale');
+for (const id of ['family', 'megainternet']) {
+  if (!postSale.includes(`'${id}'`)) {
+    console.log('FAIL post-sale team missing', id);
+    process.exit(1);
+  }
+}
+console.log('OK value streams highlight the requested teams');
+
+const teams = layers.find((layer) => layer.id === 'teams');
+const expectedTeams = [
+  ['tariffs', 'Тарифы'],
+  ['become', 'Стать абонентом'],
+  ['monetization', 'Монетизация'],
+  ['home', 'Домашний интернет'],
+  ['family', 'Семейные механики'],
+  ['megainternet', 'МегаИнтернет'],
+];
+if (!teams || teams.number !== '5' || teams.title !== 'Команда') {
+  console.log('FAIL teams layer metadata');
+  process.exit(1);
+}
+if (JSON.stringify(teams.items.map((item) => [item.id, item.label])) !== JSON.stringify(expectedTeams)) {
+  console.log('FAIL teams', teams && teams.items);
+  process.exit(1);
+}
+console.log('OK teams layer uses Семейные механики');
 console.log('All platform data path tests passed');
