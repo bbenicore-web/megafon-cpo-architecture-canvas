@@ -50,8 +50,11 @@ function icon(name, cls) {
 }
 
 const RELATED = {
-  discovery: { journeys: ['j1', 'j2'], caps: ['cat', 'nav', 'cards'], channels: ['web', 'lk'] },
-  sales: { journeys: ['j3'], caps: ['cart', 'pay'], channels: ['web', 'lk'] },
+  discovery: { journeys: ['j1', 'j2'], caps: ['cat', 'nav', 'cards'], channels: ['web', 'lk'], teams: ['tariffs', 'home'] },
+  sales: { journeys: ['j3'], caps: ['cart', 'pay'], channels: ['web', 'lk'], teams: ['become'] },
+  activation: { teams: ['become'] },
+  self: { teams: ['monetization'] },
+  postsale: { teams: ['family', 'megainternet'] },
 };
 
 const state = {
@@ -59,6 +62,7 @@ const state = {
   selectedJourney: null,
   selectedCap: null,
   selectedChannel: null,
+  selectedTeam: null,
 };
 
 function layerById(id) {
@@ -70,23 +74,21 @@ function isDimmed(kind, id) {
   const d = state.selectedDomain;
   if (d && RELATED[d]) {
     if (kind === 'domain') return id !== d;
-    if (kind === 'journey') return !(RELATED[d].journeys || []).includes(id);
-    if (kind === 'cap') return !RELATED[d].caps.includes(id);
-    if (kind === 'channel') return !RELATED[d].channels.includes(id);
+    const key = { journey: 'journeys', cap: 'caps', channel: 'channels', team: 'teams' }[kind];
+    if (key && Object.prototype.hasOwnProperty.call(RELATED[d], key)) return !RELATED[d][key].includes(id);
   }
   if (state.selectedJourney && kind === 'journey') return id !== state.selectedJourney;
   if (state.selectedCap && kind === 'cap') return id !== state.selectedCap;
   if (state.selectedChannel && kind === 'channel') return id !== state.selectedChannel;
+  if (state.selectedTeam && kind === 'team') return id !== state.selectedTeam;
   return false;
 }
 
 function relatedIds(kind) {
   const rel = state.selectedDomain && RELATED[state.selectedDomain];
   if (!rel || window.EDIT_MODE) return [];
-  if (kind === 'journey') return rel.journeys || [];
-  if (kind === 'cap') return rel.caps || [];
-  if (kind === 'channel') return rel.channels || [];
-  return [];
+  const key = { journey: 'journeys', cap: 'caps', channel: 'channels', team: 'teams' }[kind];
+  return key && Object.prototype.hasOwnProperty.call(rel, key) ? rel[key] : [];
 }
 
 function itemClass(base, kind, id, extra) {
@@ -94,6 +96,7 @@ function itemClass(base, kind, id, extra) {
     || (kind === 'journey' && state.selectedJourney === id)
     || (kind === 'cap' && state.selectedCap === id)
     || (kind === 'channel' && state.selectedChannel === id)
+    || (kind === 'team' && state.selectedTeam === id)
     || relatedIds(kind).includes(id);
   return `${base} ${extra || ''} ${active ? 'active' : ''} ${isDimmed(kind, id) ? 'dimmed' : ''}`.trim();
 }
@@ -198,6 +201,18 @@ function renderCaps(layer) {
   `;
 }
 
+function renderTeams(layer) {
+  return `
+    <div class="teams">
+      ${layer.items.map((item) => `
+        <button type="button" class="${itemClass('team', 'team', item.id)}" data-team="${item.id}"${editAttrs(`center.layers.teams.items.${item.id}`, 'team')}>
+          ${icon(item.icon)}<span>${escapeHtml(item.label)}</span>
+        </button>
+      `).join('')}
+    </div>
+  `;
+}
+
 function renderChannels(layer) {
   return `
     <div class="channels">
@@ -215,6 +230,7 @@ function renderLayerBody(layer) {
   if (layer.id === 'journeys') return renderJourneys(layer);
   if (layer.id === 'capabilities') return renderCaps(layer);
   if (layer.id === 'channels') return renderChannels(layer);
+  if (layer.id === 'teams') return renderTeams(layer);
   return '';
 }
 
@@ -283,7 +299,12 @@ function statusText() {
       .filter((entry) => ids.includes(entry.id))
       .map((entry) => entry.label || entry.title)
       .join(', ');
-    return `${item.title}: ${labels('journeys', rel.journeys || [])}; ${labels('capabilities', rel.caps || [])}; ${labels('channels', rel.channels || [])}`;
+    const parts = [];
+    if (rel.journeys) parts.push(labels('journeys', rel.journeys));
+    if (rel.caps) parts.push(labels('capabilities', rel.caps));
+    if (rel.channels) parts.push(labels('channels', rel.channels));
+    if (rel.teams) parts.push(labels('teams', rel.teams));
+    return `${item.title}: ${parts.filter(Boolean).join('; ')}`;
   }
   if (state.selectedJourney) {
     const item = layerById('journeys')?.items.find((i) => i.id === state.selectedJourney);
@@ -296,6 +317,10 @@ function statusText() {
   if (state.selectedChannel) {
     const item = layerById('channels')?.items.find((i) => i.id === state.selectedChannel);
     return item ? `Канал: ${item.label}` : D.ui.statusDefault;
+  }
+  if (state.selectedTeam) {
+    const item = layerById('teams')?.items.find((i) => i.id === state.selectedTeam);
+    return item ? `Команда: ${item.label}` : D.ui.statusDefault;
   }
   return D.ui.statusDefault;
 }
@@ -318,7 +343,7 @@ function renderPageMeta() {
 
 function renderToolbar() {
   const el = document.getElementById('toolbar');
-  const hasSel = state.selectedDomain || state.selectedJourney || state.selectedCap || state.selectedChannel;
+  const hasSel = state.selectedDomain || state.selectedJourney || state.selectedCap || state.selectedChannel || state.selectedTeam;
   el.innerHTML = `
     ${window.EDIT_MODE ? '' : '<a class="btn" href="?edit=1">WYSIWYG</a>'}
     ${hasSel ? '<button type="button" class="btn ghost" id="reset-btn">Сбросить выбор</button>' : ''}
@@ -371,19 +396,19 @@ function bindEvents() {
       return;
     }
     if (e.target.closest('#reset-btn')) {
-      setState({ selectedDomain: null, selectedJourney: null, selectedCap: null, selectedChannel: null });
+      setState({ selectedDomain: null, selectedJourney: null, selectedCap: null, selectedChannel: null, selectedTeam: null });
       return;
     }
     const staticCard = e.target.closest('.domain-card.static');
     if (staticCard) {
-      setState({ selectedDomain: null, selectedJourney: null, selectedCap: null, selectedChannel: null });
+      setState({ selectedDomain: null, selectedJourney: null, selectedCap: null, selectedChannel: null, selectedTeam: null });
       return;
     }
     const domain = e.target.closest('[data-domain]');
     if (domain) {
       const id = domain.dataset.domain;
       if (!RELATED[id]) {
-        setState({ selectedDomain: null, selectedJourney: null, selectedCap: null, selectedChannel: null });
+        setState({ selectedDomain: null, selectedJourney: null, selectedCap: null, selectedChannel: null, selectedTeam: null });
         return;
       }
       setState({
@@ -391,6 +416,7 @@ function bindEvents() {
         selectedJourney: null,
         selectedCap: null,
         selectedChannel: null,
+        selectedTeam: null,
       });
       return;
     }
@@ -401,6 +427,7 @@ function bindEvents() {
         selectedDomain: null,
         selectedCap: null,
         selectedChannel: null,
+        selectedTeam: null,
       });
       return;
     }
@@ -411,6 +438,7 @@ function bindEvents() {
         selectedDomain: null,
         selectedJourney: null,
         selectedChannel: null,
+        selectedTeam: null,
       });
       return;
     }
@@ -421,6 +449,18 @@ function bindEvents() {
         selectedDomain: null,
         selectedJourney: null,
         selectedCap: null,
+        selectedTeam: null,
+      });
+      return;
+    }
+    const team = e.target.closest('[data-team]');
+    if (team) {
+      setState({
+        selectedTeam: state.selectedTeam === team.dataset.team ? null : team.dataset.team,
+        selectedDomain: null,
+        selectedJourney: null,
+        selectedCap: null,
+        selectedChannel: null,
       });
     }
   });

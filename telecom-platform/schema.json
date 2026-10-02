@@ -209,6 +209,44 @@
             "label": "Другие каналы"
           }
         ]
+      },
+      {
+        "id": "teams",
+        "number": "5",
+        "title": "Команда",
+        "enTitle": "Teams",
+        "items": [
+          {
+            "id": "tariffs",
+            "icon": "card",
+            "label": "Тарифы"
+          },
+          {
+            "id": "become",
+            "icon": "userPlus",
+            "label": "Стать абонентом"
+          },
+          {
+            "id": "monetization",
+            "icon": "wallet",
+            "label": "Монетизация"
+          },
+          {
+            "id": "home",
+            "icon": "globe",
+            "label": "Домашний интернет"
+          },
+          {
+            "id": "family",
+            "icon": "heart",
+            "label": "Семейные механики"
+          },
+          {
+            "id": "megainternet",
+            "icon": "spark",
+            "label": "МегаИнтернет"
+          }
+        ]
       }
     ]
   },
